@@ -24,11 +24,6 @@ export module Image {
                     let height = data.readUInt16LE(p); p+=2;
                     let offset = data.readUInt32LE(p); p+=4;
 
-                    console.log(`
-Offset: ${offset}
-Length: ${data.length}
-End: ${width*height}
-`);
                     
                     let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height)-1 ));
     
