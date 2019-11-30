@@ -64,7 +64,6 @@ var Palette;
                                 palette.writeUInt8(data.readUInt8(i * 3 + 1) << 2, b++); //pix.blue = data.readUInt8(k++) << 2;
                                 palette.writeUInt8(data.readUInt8(i * 3) << 2, b++); //pix.green = data.readUInt8(k++) << 2;
                                 palette.writeUInt8(default_alpha, b++);
-                                // palette.push(pix);
                             }
                             resolve(palette);
                         });

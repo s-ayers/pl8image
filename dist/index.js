@@ -55,7 +55,7 @@ var _a = require('bitmap-js'), padImageData = _a.padImageData, createBitmapFile 
                 return [4 /*yield*/, Pl8_model_1.Image.file('./data/VILLAGE.PL8')];
             case 1:
                 pp8 = _a.sent();
-                tile = pp8.tiles.tiles[0];
+                tile = pp8.tiles[0];
                 console.log(tile);
                 return [2 /*return*/];
         }

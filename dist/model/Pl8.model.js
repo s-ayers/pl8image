@@ -8,13 +8,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
-var TileSet_model_1 = require("./TileSet.model");
 var Tile_model_1 = require("./Tile.model");
+var createBitmapBuffer = require('@s-ayers/bitmap').createBitmapBuffer;
 var Image;
 (function (Image) {
     function file(filename) {
-        return new Promise(function (resolve, reject) {
-            var tiles = new TileSet_model_1.TileSet();
+        return new Promise(function (resolve) {
+            var tiles = [];
             fs.readFile(filename, function (err, data) {
                 if (err)
                     throw err;
@@ -40,10 +40,9 @@ var Image;
                     ti.extraRows = data.readUInt8(p);
                     p += 1;
                     p += 2;
-                    tiles.add(ti);
+                    tiles.push(ti);
                 }
                 var image = new Pl8Image(tiles);
-                image.numberOfTile = numberOfTile;
                 resolve(image);
             });
         });
@@ -51,9 +50,42 @@ var Image;
     Image.file = file;
     var Pl8Image = /** @class */ (function () {
         function Pl8Image(tiles) {
-            this.numberOfTile = 0;
+            this.tiles = [];
+            this.width = 640;
+            this.height = 480;
             this.tiles = tiles;
         }
+        Pl8Image.prototype.add = function (ti) {
+            this.tiles.push(ti);
+        };
+        Pl8Image.prototype.Orthogonal = function (palette, format) {
+            var _this = this;
+            if (format === void 0) { format = 'bmp'; }
+            var imageData = Buffer.alloc(this.height * this.width, 0xFF);
+            this.tiles.forEach(function (tile) {
+                var width = tile.width, height = tile.height, x = tile.x, y = tile.y;
+                for (var h = 0; h < height; h++) {
+                    for (var w = 0; w < width - 1; w++) {
+                        var source = (h * width) + w, target = (_this.width * (y + h) + (x + w));
+                        imageData.writeUInt8(tile.raw.readUInt8(source), target);
+                    }
+                }
+            });
+            var image;
+            if (format === 'bmp') {
+                image = createBitmapBuffer({
+                    imageData: imageData,
+                    width: this.width,
+                    height: this.height * -1,
+                    bitsPerPixel: 8,
+                    colorTable: palette
+                });
+            }
+            else {
+                throw Error('Invalid Argument - format');
+            }
+            return image;
+        };
         return Pl8Image;
     }());
     Image.Pl8Image = Pl8Image;
