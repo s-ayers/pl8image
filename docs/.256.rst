@@ -1,0 +1,23 @@
+####################
+Color Palette (.256)
+####################
+
+
+The color palettes are stored in the .256 files.  There are 256 colors, 3 bytes per color (RGB).
+This is different than the standard 4 byte blue, green, red, 0x00.
+
+
++-----------------------------------------------+
+| Where n is the indexed color                  |
++----------------------+------------------------+
+| File Offset          | Color                  |
+| (bytes)              |                        |
++======================+========================+
+| n                    | Blue                   | 
++----------------------+------------------------+
+| n + 1                | Green                  |
++----------------------+------------------------+
+| n + 2                | Red                    |
++----------------------+------------------------+
+
+

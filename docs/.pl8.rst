@@ -1,0 +1,48 @@
+###################
+Sprite Image (.pl8)
+###################
+
+.pl8 files are basically bitmaps, with some additional features bolted on.
+There are multiple images (sprites) within one file.  The height, width, 
+and data offset are located in the header.
+
+The color table is stored in a separate file.
+
+A type of "transparency" is supported, despite the color table not supporting
+an alpha channel. 
+
+The image data is located at the 'Data Offset', and is Width x Height long.
+Each byte corresponds to a color in the color table (.256 file).
+
++-----------------------------------------------+
+| Where n is the indexed color                  |
++----------------------+------------------------+
+| File Offset          | Color                  |
+| (bytes)              |                        |
++======================+========================+
+| 0 - 1                | Unknown - Type?        | 
++----------------------+------------------------+
+| 2 - 3                | Number of Sprites      |
++----------------------+------------------------+
+| 4 - 7                | Unknown                |
++----------------------+------------------------+
+|                      | Sprite 1               |
++----------------------+------------------------+
+| 8 - 9                | Width                  |
++----------------------+------------------------+
+| 10 - 12              | Height                 |
++----------------------+------------------------+
+| 13 - 16              | Data Offset            |
++----------------------+------------------------+
+| 17 - 18              | x coordinate           |
++----------------------+------------------------+
+| 20 - 21              | y coordinate           |
++----------------------+------------------------+
+| 22                   | extra type (unknown)   |
++----------------------+------------------------+
+| 23                   | extra row (unknown)    |
++----------------------+------------------------+
+| 24 - 25              | Unknown                |
++----------------------+------------------------+
+|                      | Sprite 2               |
++----------------------+------------------------+
