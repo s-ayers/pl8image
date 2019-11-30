@@ -2,7 +2,7 @@
 import {Palette} from './model/Palette.model'; 
 import { Image } from './model/Pl8.model';
 
-import fs from 'fs';
+import * as fs from 'fs';
 
 const { padImageData, createBitmapFile } = require('bitmap-js');
 

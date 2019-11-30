@@ -1,7 +1,7 @@
 
 import {Palette} from './model/Palette.model'; 
 import { Image } from './model/Pl8.model';
-import fs from 'fs';
+import * as fs from 'fs';
 
 const { padImageData, createBitmapFile } = require('@s-ayers/bitmap');
 
@@ -16,19 +16,19 @@ const { padImageData, createBitmapFile } = require('@s-ayers/bitmap');
     const tile = pp8.tiles.tiles[0];
     
 
-    const width = tile.width;
-    const height = tile.height*-1;
+    const width = pp8.tiles.width;
+    const height = pp8.tiles.height*-1;
     const colorTable = pal
       
     const imageData = padImageData({
-      unpaddedImageData:tile.Orthogonal(),
+      unpaddedImageData: pp8.tiles.Orthogonal(),
       width,
       height
     });
     
-    let bob = await createBitmapFile({
+    createBitmapFile({
       filename: "data/out.bmp",
-      imageData,
+      imageData: pp8.tiles.Orthogonal(),
       width,
       height,
       bitsPerPixel: 8,

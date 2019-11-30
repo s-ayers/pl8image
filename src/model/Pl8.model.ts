@@ -1,4 +1,4 @@
-import fs from 'fs';
+import * as fs from 'fs';
 import { TileSet } from './TileSet.model';
 import {Tile} from './Tile.model';
 
@@ -25,8 +25,9 @@ export module Image {
                     let offset = data.readUInt32LE(p); p+=4;
 
                     
-                    let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height)-1 ));
-    
+                    // let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height)-1 ));
+                    let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height) - 1 ));
+                        
                     ti.x = data.readUInt16LE(p); p+=2;
                     ti.y = data.readUInt16LE(p); p+=2;
                     

@@ -1,5 +1,3 @@
-import {Palette} from './Palette.model';
-import { Pixel } from './Pixel.model';
 
 export class Tile {
 
