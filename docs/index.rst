@@ -11,7 +11,9 @@ Welcome to Pl8Image's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
+   .256
+   .pl8
 
 
 Indices and tables
