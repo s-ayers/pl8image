@@ -1,14 +1,14 @@
-import fs from 'fs';
-import { TileSet } from './TileSet.model';
+import * as fs from 'fs';
 import {Tile} from './Tile.model';
+const { createBitmapBuffer } = require('@s-ayers/bitmap');
 
 export module Image {
 
     export function file(filename: string): Promise<Pl8Image> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
 
 
-            let tiles = new TileSet();
+            let tiles: Tile[] = [];
             fs.readFile(filename, (err, data) => {
                 if (err) throw err;
     
@@ -24,14 +24,10 @@ export module Image {
                     let height = data.readUInt16LE(p); p+=2;
                     let offset = data.readUInt32LE(p); p+=4;
 
-                    console.log(`
-Offset: ${offset}
-Length: ${data.length}
-End: ${width*height}
-`);
                     
-                    let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height)-1 ));
-    
+                    // let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height)-1 ));
+                    let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height) - 1 ));
+                        
                     ti.x = data.readUInt16LE(p); p+=2;
                     ti.y = data.readUInt16LE(p); p+=2;
                     
@@ -40,11 +36,10 @@ End: ${width*height}
     
                     p+=2;
                     
-                    tiles.add(ti); 
+                    tiles.push(ti); 
                     
                 }
                 const image = new Pl8Image(tiles);
-                image.numberOfTile = numberOfTile;
                 resolve(image);
             });
             
@@ -53,14 +48,51 @@ End: ${width*height}
 
     export  class Pl8Image {
     
-        numberOfTile: number = 0;
-        tiles: TileSet;
+        tiles: Tile[] = [];
+        width: number = 640;
+        height: number = 480;
         
     
-        constructor(tiles: TileSet) {
+        constructor(tiles: Tile[]) {
             this.tiles = tiles;
         }
+        add(ti: Tile) {
+            this.tiles.push(ti);
+        }
     
+        Orthogonal(palette: Buffer, format:string = 'bmp'): Buffer {
+            const imageData = Buffer.alloc(this.height * this.width, 0xFF);
+    
+            this.tiles.forEach(tile => {
+                const width = tile.width,
+                    height = tile.height,
+                    x = tile.x,
+                    y = tile.y;
+        
+                for (let h = 0; h < height; h++) {
+                    for (let w = 0; w < width-1; w++) {
+                        let source = (h * width) + w,
+                            target = (this.width*(y + h) + (x + w));
+    
+                        imageData.writeUInt8(tile.raw.readUInt8(source), target);
+    
+                    }
+                }
+            });
+            let image;
+            if (format === 'bmp') {
+                image = createBitmapBuffer({
+                    imageData: imageData,
+                    width: this.width,
+                    height: this.height*-1,
+                    bitsPerPixel: 8,
+                    colorTable: palette
+                  });
+            } else {
+                throw Error('Invalid Argument - format');
+            }
+            return image;
+        }
        
     }
 }

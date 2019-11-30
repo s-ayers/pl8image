@@ -1,5 +1,3 @@
-import {Palette} from './Palette.model';
-import { Pixel } from './Pixel.model';
 
 export class Tile {
 
@@ -21,22 +19,7 @@ export class Tile {
          }
          
          Orthogonal(): Buffer {
-// console.log((this.raw.length+1)/this.height);
-            let data = Buffer.alloc(this.width * this.height);
-            let size = data.length;
-            console.log(size/this.height);
-            for (let h = 0; h < this.height; h++) {
-
-                let targetStart = h*this.width, 
-                sourceStart = h*(this.width),
-                sourceEnd = (h+1)*this.width+1;
-
-                console.log(targetStart/this.height, sourceStart, sourceEnd);
-                this.raw.copy(data, targetStart, sourceStart , sourceEnd  );
-            }
-
-            return data;
-    
+            return this.raw;
         }
     
         Isometric(): Buffer {

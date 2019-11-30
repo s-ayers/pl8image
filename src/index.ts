@@ -2,7 +2,7 @@
 import {Palette} from './model/Palette.model'; 
 import { Image } from './model/Pl8.model';
 
-import fs from 'fs';
+import * as fs from 'fs';
 
 const { padImageData, createBitmapFile } = require('bitmap-js');
 
@@ -10,7 +10,7 @@ const { padImageData, createBitmapFile } = require('bitmap-js');
 (async () => {
 let colorTable = fs.readFileSync('./data/BASE01.256');
 let pp8 =  await Image.file('./data/VILLAGE.PL8');
-const tile = pp8.tiles.tiles[0];
+const tile = pp8.tiles[0];
 
 console.log(tile);
 
