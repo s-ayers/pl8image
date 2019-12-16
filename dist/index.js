@@ -45,18 +45,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Pl8_model_1 = require("./model/Pl8.model");
 var fs = __importStar(require("fs"));
-var _a = require('bitmap-js'), padImageData = _a.padImageData, createBitmapFile = _a.createBitmapFile;
+var _a = require("bitmap-js"), padImageData = _a.padImageData, createBitmapFile = _a.createBitmapFile;
 (function () { return __awaiter(void 0, void 0, void 0, function () {
     var colorTable, pp8, tile;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                colorTable = fs.readFileSync('./data/BASE01.256');
-                return [4 /*yield*/, Pl8_model_1.Image.file('./data/VILLAGE.PL8')];
+                colorTable = fs.readFileSync("./data/BASE01.256");
+                return [4 /*yield*/, Pl8_model_1.Image.file("./data/VILLAGE.PL8")];
             case 1:
                 pp8 = _a.sent();
                 tile = pp8.tiles[0];
-                console.log(tile);
                 return [2 /*return*/];
         }
     });
@@ -77,7 +76,7 @@ var _a = require('bitmap-js'), padImageData = _a.padImageData, createBitmapFile 
 //             bitDepth: 8
 //         });
 //         myImage.data = myTile.Orthogonal(pal);
-//  console.log(myImage.data);       
+//  console.log(myImage.data);
 // // console.log(myTile.Orthogonal(pal).length);
 //  var buffer = PNG.sync.write(myImage);
 // //  console.log(buffer);

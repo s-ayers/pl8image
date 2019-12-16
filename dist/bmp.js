@@ -43,23 +43,24 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var fs = __importStar(require("fs"));
 var Palette_model_1 = require("./model/Palette.model");
 var Pl8_model_1 = require("./model/Pl8.model");
-var fs = __importStar(require("fs"));
-var createBitmapFile = require('@s-ayers/bitmap').createBitmapFile;
 (function () { return __awaiter(void 0, void 0, void 0, function () {
     var pal, pp8;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, Palette_model_1.Palette.file('./data/BASE01.256')];
+            case 0: return [4 /*yield*/, Palette_model_1.Palette.file("./data/BASE01.256")];
             case 1:
                 pal = _a.sent();
-                return [4 /*yield*/, Pl8_model_1.Image.file('./data/Village.pl8')];
+                return [4 /*yield*/, Pl8_model_1.Image.file("./data/Village.pl8")];
             case 2:
                 pp8 = _a.sent();
-                fs.writeFile("data/out.bmp", pp8.Orthogonal(pal), function (err) {
-                    if (err)
+                pp8.Orthogonal(pal).toPNG();
+                fs.writeFile("./data/out.bmp", pp8.Orthogonal(pal).toBMP(), function (err) {
+                    if (err) {
                         throw err;
+                    }
                 });
                 return [2 /*return*/];
         }

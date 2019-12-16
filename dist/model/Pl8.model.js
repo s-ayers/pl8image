@@ -8,16 +8,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
+var Graphic_model_1 = require("./Graphic.model");
 var Tile_model_1 = require("./Tile.model");
-var createBitmapBuffer = require('@s-ayers/bitmap').createBitmapBuffer;
+var createBitmapBuffer = require("@s-ayers/bitmap").createBitmapBuffer;
 var Image;
 (function (Image) {
     function file(filename) {
         return new Promise(function (resolve) {
             var tiles = [];
             fs.readFile(filename, function (err, data) {
-                if (err)
+                if (err) {
                     throw err;
+                }
                 var p = 2;
                 var numberOfTile = data.readUInt16LE(p);
                 p += 2;
@@ -58,33 +60,21 @@ var Image;
         Pl8Image.prototype.add = function (ti) {
             this.tiles.push(ti);
         };
-        Pl8Image.prototype.Orthogonal = function (palette, format) {
+        Pl8Image.prototype.Orthogonal = function (palette) {
             var _this = this;
-            if (format === void 0) { format = 'bmp'; }
-            var imageData = Buffer.alloc(this.height * this.width, 0xFF);
+            var imageData = Buffer.alloc(this.height * this.width, 0x00);
             this.tiles.forEach(function (tile) {
-                var width = tile.width, height = tile.height, x = tile.x, y = tile.y;
+                var width = tile.width, height = tile.height, x = tile.x, y = tile.y, data = tile._orthogonal();
                 for (var h = 0; h < height; h++) {
                     for (var w = 0; w < width - 1; w++) {
-                        var source = (h * width) + w, target = (_this.width * (y + h) + (x + w));
-                        imageData.writeUInt8(tile.raw.readUInt8(source), target);
+                        var source = (h * width) + w;
+                        var target = (_this.width * (y + h) + (x + w));
+                        imageData.writeUInt8(data.readUInt8(source), target);
                     }
                 }
             });
-            var image;
-            if (format === 'bmp') {
-                image = createBitmapBuffer({
-                    imageData: imageData,
-                    width: this.width,
-                    height: this.height * -1,
-                    bitsPerPixel: 8,
-                    colorTable: palette
-                });
-            }
-            else {
-                throw Error('Invalid Argument - format');
-            }
-            return image;
+            var graphic = new Graphic_model_1.Graphic(this.width, this.height, imageData, palette);
+            return graphic;
         };
         return Pl8Image;
     }());

@@ -1,18 +1,17 @@
 
-import {Palette} from './model/Palette.model'; 
-import { Image } from './model/Pl8.model';
+import {Palette} from "./model/Palette.model";
+import { Image } from "./model/Pl8.model";
 
-import * as fs from 'fs';
+import * as fs from "fs";
 
-const { padImageData, createBitmapFile } = require('bitmap-js');
-
+const { padImageData, createBitmapFile } = require("bitmap-js");
 
 (async () => {
-let colorTable = fs.readFileSync('./data/BASE01.256');
-let pp8 =  await Image.file('./data/VILLAGE.PL8');
+const colorTable = fs.readFileSync("./data/BASE01.256");
+const pp8 =  await Image.file("./data/VILLAGE.PL8");
 const tile = pp8.tiles[0];
 
-console.log(tile);
+// console.log(tile);
 
 // const imageData = padImageData({
 //     unpaddedImageData: Buffer.from([
@@ -26,7 +25,7 @@ console.log(tile);
 //     width,
 //     height
 //   });
-  
+
 //   await createBitmapFile({
 //     filename: "smiley.bmp",
 //     imageData,
@@ -38,8 +37,7 @@ console.log(tile);
 
 // console.log(myPal);
 
-})()
-
+})();
 
 // (async () => {
 //     let myPal = await Palette.file('./data/BASE01.256'),
@@ -62,9 +60,7 @@ console.log(tile);
 //             bitDepth: 8
 //         });
 //         myImage.data = myTile.Orthogonal(pal);
-//  console.log(myImage.data);       
-        
-
+//  console.log(myImage.data);
 
 // // console.log(myTile.Orthogonal(pal).length);
 
@@ -80,9 +76,6 @@ console.log(tile);
 //         //         console.log('done');
 //         //     });
 //         // });
-        
-
-
 
 //     });
 

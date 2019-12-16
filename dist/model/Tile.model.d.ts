@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { Graphic } from "./Graphic.model";
 export declare class Tile {
     width: number;
     height: number;
@@ -9,7 +10,8 @@ export declare class Tile {
     extraRows: number;
     raw: Buffer;
     constructor(width: number, height: number, offset: number, raw: Buffer);
-    Orthogonal(): Buffer;
+    _orthogonal(): Buffer;
+    Orthogonal(palette: Buffer): Graphic;
     Isometric(): Buffer;
     Rle(): Buffer;
 }
