@@ -1,6 +1,6 @@
 export class Pixel {
-    red: number = 0;
-    green: number = 0;
-    blue: number = 0;
-    alpha: number = 0xFF;
+    public red: number = 0;
+    public green: number = 0;
+    public blue: number = 0;
+    public alpha: number = 0xFF;
 }

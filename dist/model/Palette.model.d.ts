@@ -1,4 +1,4 @@
 /// <reference types="node" />
-export declare module Palette {
+export declare namespace Palette {
     function file(filename: string): Promise<Buffer>;
 }

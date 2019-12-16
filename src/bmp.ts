@@ -1,25 +1,17 @@
 
-import {Palette} from './model/Palette.model'; 
-import { Image } from './model/Pl8.model';
 import * as fs from "fs";
-
-const {  createBitmapFile } = require('@s-ayers/bitmap');
-
-
-
+import {Palette} from "./model/Palette.model";
+import { Image } from "./model/Pl8.model";
 
 (async () => {
 
-    let pal = await Palette.file('./data/BASE01.256');
+    const pal = await Palette.file("./data/BASE01.256");
 
-    let pp8 =  await Image.file('./data/Village.pl8');
+    const pp8 =  await Image.file("./data/Village.pl8");
 
-    fs.writeFile("data/out.bmp", pp8.Orthogonal(pal), err => {
-      if (err) throw err;
+    pp8.Orthogonal(pal).toPNG();
+    fs.writeFile("./data/out.bmp", pp8.Orthogonal(pal).toBMP(), (err) => {
+      if (err) { throw err; }
     });
 
-    
-
-
-})()
-
+})();
