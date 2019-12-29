@@ -2,56 +2,73 @@ import * as fs from "fs";
 import {Graphic} from "./Graphic.model";
 import {Tile} from "./Tile.model";
 
-const { createBitmapBuffer } = require("@s-ayers/bitmap");
+
 
 export namespace Image {
+    export enum TYPE {
+        ORTHOGONAL,
+        RLE_ENCODED,
+        ISOMETRIC,
+    }
 
     export function file(filename: string): Promise<Pl8Image> {
         return new Promise((resolve) => {
 
-            const tiles: Tile[] = [];
+            
             fs.readFile(filename, (err, data) => {
                 if (err) { throw err; }
 
-                let p = 2;
-                const numberOfTile = data.readUInt16LE(p); p += 2;
-                p += 4;
-
-                for (let i = 0; i < numberOfTile; i++) {
-
-                    const width  = data.readUInt16LE(p); p += 2;
-                    const height = data.readUInt16LE(p); p += 2;
-                    const offset = data.readUInt32LE(p); p += 4;
-
-                    // let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height)-1 ));
-                    const ti = new Tile(width, height, offset, data.slice(offset, offset + (width * height) - 1 ));
-
-                    ti.x = data.readUInt16LE(p); p += 2;
-                    ti.y = data.readUInt16LE(p); p += 2;
-
-                    ti.extraType = data.readUInt8(p); p += 1;
-                    ti.extraRows = data.readUInt8(p); p += 1;
-
-                    p += 2;
-
-                    tiles.push(ti);
-
-                }
-                const image = new Pl8Image(tiles);
+                const image = buffer(data);
                 resolve(image);
             });
 
         });
     }
 
+    export function buffer(data: Buffer):Pl8Image {
+        
+        
+        // console.log(data.readUInt32LE(4));
+        
+        let p = 0;
+        const type = data.readUInt16LE(p); p+= 2;
+        const numberOfTile = data.readUInt16LE(p); p += 2;
+        p += 4;
+        const tiles: Tile[] = [];
+        for (let i = 0; i < numberOfTile; i++) {
+
+            const width  = data.readUInt16LE(p); p += 2;
+            const height = data.readUInt16LE(p); p += 2;
+            const offset = data.readUInt32LE(p); p += 4;
+
+            // let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height)-1 ));
+            const ti = new Tile(width, height, offset, data.slice(offset, offset + (width * height) - 1 ));
+
+            ti.x = data.readUInt16LE(p); p += 2;
+            ti.y = data.readUInt16LE(p); p += 2;
+
+            ti.extraType = data.readUInt8(p); p += 1;
+            ti.extraRows = data.readUInt8(p); p += 1;
+
+            p += 2;
+
+            tiles.push(ti);
+
+        }
+        const image = new Pl8Image(tiles, type);
+
+        return image;
+    }
     export  class Pl8Image {
 
         public tiles: Tile[] = [];
         public width: number = 640;
         public height: number = 480;
+        public type: number;
 
-        constructor(tiles: Tile[]) {
+        constructor(tiles: Tile[], type: number) {
             this.tiles = tiles;
+            this.type = type;
         }
         public add(ti: Tile) {
             this.tiles.push(ti);

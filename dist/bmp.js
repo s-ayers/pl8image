@@ -47,21 +47,33 @@ var fs = __importStar(require("fs"));
 var Palette_model_1 = require("./model/Palette.model");
 var Pl8_model_1 = require("./model/Pl8.model");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var pal, pp8;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var pal, pp8, _a, _b, _c, _d, _e, _f;
+    return __generator(this, function (_g) {
+        switch (_g.label) {
             case 0: return [4 /*yield*/, Palette_model_1.Palette.file("./data/BASE01.256")];
             case 1:
-                pal = _a.sent();
+                pal = _g.sent();
                 return [4 /*yield*/, Pl8_model_1.Image.file("./data/Village.pl8")];
             case 2:
-                pp8 = _a.sent();
-                pp8.Orthogonal(pal).toPNG();
-                fs.writeFile("./data/out.bmp", pp8.Orthogonal(pal).toBMP(), function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                });
+                pp8 = _g.sent();
+                _b = (_a = fs).writeFile;
+                _c = ["./data/out.png"];
+                return [4 /*yield*/, pp8.Orthogonal(pal).toPNG()];
+            case 3:
+                _b.apply(_a, _c.concat([_g.sent(), function (err) {
+                        if (err) {
+                            throw err;
+                        }
+                    }]));
+                _e = (_d = fs).writeFile;
+                _f = ["./data/out.bmp"];
+                return [4 /*yield*/, pp8.Orthogonal(pal).toBMP()];
+            case 4:
+                _e.apply(_d, _f.concat([_g.sent(), function (err) {
+                        if (err) {
+                            throw err;
+                        }
+                    }]));
                 return [2 /*return*/];
         }
     });

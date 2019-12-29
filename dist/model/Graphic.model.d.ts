@@ -5,6 +5,6 @@ export declare class Graphic {
     private raw;
     private palette;
     constructor(width: number, height: number, raw: Buffer, palette: Buffer);
-    toBMP(): Buffer;
-    toPNG(): Buffer;
+    toBMP(): Promise<Buffer>;
+    toPNG(): Promise<Buffer>;
 }
