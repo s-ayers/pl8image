@@ -2,8 +2,6 @@ import * as fs from "fs";
 import {Graphic} from "./Graphic.model";
 import {Tile} from "./Tile.model";
 
-
-
 export namespace Image {
     export enum TYPE {
         ORTHOGONAL,
@@ -14,7 +12,6 @@ export namespace Image {
     export function file(filename: string): Promise<Pl8Image> {
         return new Promise((resolve) => {
 
-            
             fs.readFile(filename, (err, data) => {
                 if (err) { throw err; }
 
@@ -25,13 +22,10 @@ export namespace Image {
         });
     }
 
-    export function buffer(data: Buffer):Pl8Image {
-        
-        
-        // console.log(data.readUInt32LE(4));
-        
+    export function buffer(data: Buffer): Pl8Image {
+
         let p = 0;
-        const type = data.readUInt16LE(p); p+= 2;
+        const type = data.readUInt16LE(p); p += 2;
         const numberOfTile = data.readUInt16LE(p); p += 2;
         p += 4;
         const tiles: Tile[] = [];
@@ -78,11 +72,11 @@ export namespace Image {
             const imageData = Buffer.alloc(this.height * this.width, 0x00);
 
             this.tiles.forEach((tile) => {
-                const width = tile.width,
-                    height = tile.height,
-                    x = tile.x,
-                    y = tile.y,
-                    data = tile._orthogonal();
+                const width = tile.width;
+                const height = tile.height;
+                const x = tile.x;
+                const y = tile.y;
+                const data = tile._orthogonal();
 
                 for (let h = 0; h < height; h++) {
                     for (let w = 0; w < width - 1; w++) {
