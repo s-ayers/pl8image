@@ -35,7 +35,6 @@ export namespace Image {
             const height = data.readUInt16LE(p); p += 2;
             const offset = data.readUInt32LE(p); p += 4;
 
-            // let ti = new Tile(width, height, offset, data.slice(offset, offset+(width*height)-1 ));
             const ti = new Tile(width, height, offset, data.slice(offset, offset + (width * height) - 1 ));
 
             ti.x = data.readUInt16LE(p); p += 2;
