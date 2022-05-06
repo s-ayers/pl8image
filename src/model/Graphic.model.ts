@@ -27,7 +27,7 @@ export class Graphic {
       const options = { width: this.width, height: this.height };
       const newfile = new PNG(options);
       const bufs: any = [];
-      let buf: any;
+      // let buf: any;
 
       for (let y = 0; y < this.height; y++) {
         for (let x = 0; x < this.width; x++) {

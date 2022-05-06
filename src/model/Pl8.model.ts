@@ -94,5 +94,29 @@ export namespace Image {
 
         }
 
+        public Isometric(palette: Buffer): Graphic {
+            const imageData = Buffer.alloc(this.height * this.width, 0x00);
+
+            this.tiles.forEach((tile) => {
+                const width = tile.width;
+                const height = tile.height;
+                const x = tile.x;
+                const y = tile.y;
+                const data = tile._isometric();
+                for (let h = 0; h < height; h++) {
+                    for (let w = 0; w < width - 1; w++) {
+                        const source = (h * width) + w;
+                        const target = (this.width * (y + h) + (x + w));
+
+                        imageData.writeUInt8(data.readUInt8(source), target);
+
+                    }
+                }
+            });
+
+            const graphic = new Graphic(this.width, this.height, imageData, palette);
+            return graphic;
+
+        }
     }
 }
