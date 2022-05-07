@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "lint": "tslint  'src/**/*.ts'"
+    "lint": "tslint  'src/**/*.ts'",
+    "test": "tsc && mocha"
   },
   "author": "",
   "license": "ISC",
@@ -18,10 +18,15 @@
     "@s-ayers/bitmap": "github:s-ayers/bitmap-js",
     "@types/node": "^12.12.12",
     "@types/pngjs": "^3.4.0",
+    "binary-parser": "^2.0.2",
     "pngjs": "^3.4.0",
     "ts-node": "^8.5.2",
     "tslint": "^5.20.1",
     "typescript": "^3.7.2",
     "yargs": "^15.0.2"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0"
   }
 }

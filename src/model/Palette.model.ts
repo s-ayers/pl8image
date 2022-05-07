@@ -25,9 +25,12 @@ export namespace Palette {
                 palette.writeUInt8(0xFF, b++); // pix.green = data.readUInt8(k++) << 2;
                 palette.writeUInt8(0xFF, b++);
             } else {
-                palette.writeUInt8(data.readUInt8(i * 3 + 2) << 2, b++); // pix.red = data.readUInt8(k++) << 2;
-                palette.writeUInt8(data.readUInt8(i * 3 + 1) << 2, b++); // pix.blue = data.readUInt8(k++) << 2;
-                palette.writeUInt8(data.readUInt8(i * 3) << 2, b++); // pix.green = data.readUInt8(k++) << 2;
+                // palette.writeUInt8(data.readUInt8(i * 3 + 2) << 2, b++); // pix.red = data.readUInt8(k++) << 2;
+                // palette.writeUInt8(data.readUInt8(i * 3 + 1) << 2, b++); // pix.blue = data.readUInt8(k++) << 2;
+                // palette.writeUInt8(data.readUInt8(i * 3) << 2, b++); // pix.green = data.readUInt8(k++) << 2;
+                palette.writeUInt8(data.readUInt8(i * 3 + 2) * 4, b++); // pix.red = data.readUInt8(k++) * 4;
+                palette.writeUInt8(data.readUInt8(i * 3 + 1) * 4, b++); // pix.blue = data.readUInt8(k++) * 4;
+                palette.writeUInt8(data.readUInt8(i * 3) * 4, b++); // pix.green = data.readUInt8(k++) * 4;
                 palette.writeUInt8(0x00, b++);
             }
 
