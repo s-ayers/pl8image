@@ -8,22 +8,26 @@ export class GraphicFactory {
     buf: Buffer,
     palette: Buffer,
     width = 0,
-    height = 0
+    height = 0,
   ) {
     tiles.forEach((tile) => {
-      var size = GraphicFactory.tileSize(
+      const size = GraphicFactory.tileSize(
         tile.extraType,
         tile.width,
         tile.height,
-        tile.extraRows
+        tile.extraRows,
       );
       tile.raw = buf.slice(tile.offset, tile.offset + size);
 
-      let localWidth = tile.x + tile.width;
-      if (localWidth > width) width = localWidth;
+      const localWidth = tile.x + tile.width;
+      if (localWidth > width) {
+        width = localWidth;
+      }
 
-      let localHeight = tile.y + tile.height;
-      if (localHeight > height) height = localHeight;
+      const localHeight = tile.y + tile.height;
+      if (localHeight > height) {
+        height = localHeight;
+      }
     });
 
     const imageData = Buffer.alloc(height * width, 0x00);
@@ -50,13 +54,13 @@ export class GraphicFactory {
     return graphic;
   }
 
-  public static tile(tile: Tile, buf: Buffer) {}
+//   public static tile(tile: Tile, buf: Buffer) {}
 
   protected static tileSize(
     type: number,
     width: number,
     height: number,
-    rows: number
+    rows: number,
   ): number {
     let size;
     switch (type) {
@@ -107,10 +111,10 @@ export class GraphicFactory {
     // Fill top half
     let source = 0;
     for (let h = 0; h < halfHeight; h += 1) {
-      let rowStart = (halfHeight - 1 - h) * 2;
-      let rowStop = rowStart + h * 4 + 2;
+      const rowStart = (halfHeight - 1 - h) * 2;
+      const rowStop = rowStart + h * 4 + 2;
       for (let w = rowStart; w < rowStop; w++) {
-        let value = data.readUInt8(source++);
+        const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
@@ -119,11 +123,11 @@ export class GraphicFactory {
 
     // fill bottom
     for (let h = halfHeight; h < tileHeight; h += 1) {
-      let rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-      let rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
+      const rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
+      const rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
 
       for (let w = rowStart; w < rowStop; w++) {
-        let value = data.readUInt8(source++);
+        const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
@@ -142,50 +146,41 @@ export class GraphicFactory {
     // Fill top half
     let source = 0;
     for (let h = 0; h < halfHeight; h += 1) {
-      let rowStart = (halfHeight - 1 - h) * 2;
-      let rowStop = rowStart + h * 4 + 2;
+      const rowStart = (halfHeight - 1 - h) * 2;
+      const rowStop = rowStart + h * 4 + 2;
       for (let w = rowStart; w < rowStop; w++) {
-        let value = data.readUInt8(source++);
+        const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
         // console.log({target, w, h});
       }
-      console.log("");
+      // console.log("");
     }
 
     // fill bottom
     for (let h = halfHeight; h < tileHeight; h += 1) {
-      let rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-      let rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
+      const rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
+      const rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
 
       for (let w = rowStart; w < rowStop; w++) {
-        let value = data.readUInt8(source++);
+        const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
       }
     }
 
-
-    if ( data.length  > source) {
-        for(let extra = 0; extra < tile.extraRows; extra += 1) {
-            let value = data.readUInt8(source++);
-            let target = width * (y + halfHeight - 1) + (x - 2);
-            console.log("");
-            console.log({ target, source, length: data.length });
-            // buf.writeUInt8(value, target);
-        }
-
+    // Fill Extra
+    if (data.length > source) {
+      for (let extra = 0; extra < tile.extraRows; extra += 1) {
+        const value = data.readUInt8(source++);
+        const target = width * (y + halfHeight - 1) + (x - 2);
+        // console.log("");
+        // console.log({ target, source, length: data.length });
+        // buf.writeUInt8(value, target);
+      }
     }
-
-
-    // fill extra
-    // while (source < data.length) {
-    //   console.log({source, data: data.length });
-    //   source += 1;
-
-    // }
   }
 
   protected static isometricLeft(tile: Tile, buf: Buffer, width: number) {
@@ -199,10 +194,10 @@ export class GraphicFactory {
     // Fill top half
     let source = 0;
     for (let h = 0; h < halfHeight; h += 1) {
-      let rowStart = (halfHeight - 1 - h) * 2;
-      let rowStop = rowStart + h * 4 + 2;
+      const rowStart = (halfHeight - 1 - h) * 2;
+      const rowStop = rowStart + h * 4 + 2;
       for (let w = rowStart; w < rowStop; w++) {
-        let value = data.readUInt8(source++);
+        const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
@@ -211,11 +206,11 @@ export class GraphicFactory {
 
     // fill bottom
     for (let h = halfHeight; h < tileHeight; h += 1) {
-      let rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-      let rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
+      const rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
+      const rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
 
       for (let w = rowStart; w < rowStop; w++) {
-        let value = data.readUInt8(source++);
+        const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
@@ -234,10 +229,10 @@ export class GraphicFactory {
     // Fill top half
     let source = 0;
     for (let h = 0; h < halfHeight; h += 1) {
-      let rowStart = (halfHeight - 1 - h) * 2;
-      let rowStop = rowStart + h * 4 + 2;
+      const rowStart = (halfHeight - 1 - h) * 2;
+      const rowStop = rowStart + h * 4 + 2;
       for (let w = rowStart; w < rowStop; w++) {
-        let value = data.readUInt8(source++);
+        const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
@@ -246,11 +241,11 @@ export class GraphicFactory {
 
     // fill bottom
     for (let h = halfHeight; h < tileHeight; h += 1) {
-      let rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-      let rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
+      const rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
+      const rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
 
       for (let w = rowStart; w < rowStop; w++) {
-        let value = data.readUInt8(source++);
+        const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);

@@ -52,6 +52,7 @@ export namespace Image {
 
         return image;
     }
+
     export  class Pl8Image {
 
         public tiles: Tile[] = [];
@@ -89,8 +90,8 @@ export namespace Image {
             });
 
             const graphic = new Graphic(this.width, this.height, imageData, palette);
-            return graphic;
 
+            return graphic;
         }
 
         public Isometric(palette: Buffer): Graphic {
@@ -114,8 +115,8 @@ export namespace Image {
             });
 
             const graphic = new Graphic(this.width, this.height, imageData, palette);
-            return graphic;
 
+            return graphic;
         }
     }
 }

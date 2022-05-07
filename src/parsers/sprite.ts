@@ -13,7 +13,7 @@ export const Sprite = Parser.start()
   .uint8("extraRows")
   .uint16("unknown_000")
   .pointer("raw", {
-    type: SpriteType,
     offset: "offset",
+    type: SpriteType,
   })
   ;

@@ -1,12 +1,13 @@
+import {PNG} from "pngjs";
+
 const { createBitmapBuffer } = require("@s-ayers/bitmap");
-const PNG = require("pngjs").PNG;
 
 export class Graphic {
   constructor(
     private width: number,
     private height: number,
     private raw: Buffer,
-    private palette: Buffer
+    private palette: Buffer,
   ) {}
 
   public async toBMP(): Promise<Buffer> {
@@ -34,7 +35,10 @@ export class Graphic {
           let idx = this.width * y + x;
 
           const col = this.raw.readUInt8(idx);
-          idx = idx << 2;
+          // console.log({idx1: idx, idx2: (idx<<2), idx3: (idx/4), idx4: (idx*4)} );
+          // idx = idx << 2;
+          idx = idx * 4;
+
           if (col !== 0) {
             newfile.data[idx] = this.palette.readUInt8(col * 4 + 2);
             newfile.data[idx + 1] = this.palette.readUInt8(col * 4 + 1);

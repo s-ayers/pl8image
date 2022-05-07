@@ -1,4 +1,4 @@
-import { Parser } from 'binary-parser';
+import { Parser } from "binary-parser";
 
 export const Orthogonal = new Parser()
 .useContextVars()
