@@ -79,16 +79,9 @@ describe('Isometric Image', function () {
       // assert.equal(image.tiles[3].extraRows, 0);
       // assert.equal(image.tiles[3].type, 0);
       image.tiles.forEach(tile => {
-        var size = pl8.tileSize(tile.extraType, tile.width, tile.height, tile.extraRows);
+        var size = pl8.GraphicFactory.tileSize(tile.extraType, tile.width, tile.height, tile.extraRows);
         tile.raw = caspics.slice(tile.offset, tile.offset + size);
-        console.log(tile);
-        console.log(size);
-        console.log(tile.offset);
-        console.log(tile.offset + size);
-
       });
-
-      console.log(caspics.length);
 
     });
   });
