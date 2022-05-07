@@ -24,7 +24,6 @@ describe('Orthogonal Image', function () {
   describe('metadata - og Parser', function () {
     it('should return -parse the file', function () {
       var image = pl8.Image.buffer(caspics);
-      console.log(image);
 
       assert.equal(image.type, 0);
       assert.equal(image.width, 640);
@@ -119,13 +118,6 @@ describe('Orthogonal Image', function () {
       assert.equal(image.tiles[3].extraRows, 0);
       assert.equal(image.tiles[3].extraType, 0);
 
-      // console.log(image.tiles[3]);
-      // var tile = image.tiles[3];
-      // var size = pl8.tileSize(tile.extraType, tile.width, tile.height, tile.extraRows);
-      // console.log(size);
-      // console.log(tile.offset + size);
-      // console.log(caspics.length);
-
     });
   });
 
@@ -133,16 +125,14 @@ describe('Orthogonal Image', function () {
     it('export single file', async function () {
       var image = pl8.Pl8.parse(caspics);
 
-      var graphic = pl8.GraphicFactory.tiles(image.tiles, caspics, palette);
+      var graphic = pl8.GraphicFactory.tiles(image.tiles, palette, caspics);
       var bmp = await graphic.toBMP();
       fs.writeFileSync('data/out/orthogonal-bp.bmp', bmp);
-      // console.log(caspics.length);
-      // console.log(image);
     });
     it('export single file - override height - width', async function () {
       var image = pl8.Pl8.parse(caspics);
 
-      var graphic = pl8.GraphicFactory.tiles(image.tiles, caspics, palette, 640, 480);
+      var graphic = pl8.GraphicFactory.tiles(image.tiles, palette, caspics, 640, 480);
       var bmp = await graphic.toBMP();
       fs.writeFileSync('data/out/orthogonal-bp-640-480.bmp', bmp);
 

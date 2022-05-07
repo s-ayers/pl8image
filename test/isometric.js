@@ -51,7 +51,6 @@ describe('Isometric Image', function () {
   describe('binary Parser', function () {
     it('should parse with binary parser', function () {
       var image = pl8.Pl8.parse(caspics);
-      //  console.log(image);
 
       assert.equal(image.type, 2);
       // assert.equal(image.width, 640);
@@ -89,16 +88,14 @@ describe('Isometric Image', function () {
     it('export single file', async function () {
       var image = pl8.Pl8.parse(caspics);
 
-      var graphic = pl8.GraphicFactory.tiles(image.tiles, caspics, palette);
+      var graphic = pl8.GraphicFactory.tiles(image.tiles, palette, caspics);
       var bmp = await graphic.toBMP();
       fs.writeFileSync('data/out/isometric-bp.bmp', bmp);
-      // console.log(caspics.length);
-      // console.log(image);
     });
     it('export single file - override height - width', async function () {
       var image = pl8.Pl8.parse(caspics);
 
-      var graphic = pl8.GraphicFactory.tiles(image.tiles, caspics, palette, 640, 480);
+      var graphic = pl8.GraphicFactory.tiles(image.tiles, palette, caspics, 640, 480);
       var bmp = await graphic.toBMP();
       fs.writeFileSync('data/out/isometric-bp-640-480.bmp', bmp);
 

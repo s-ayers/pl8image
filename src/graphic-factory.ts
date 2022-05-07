@@ -5,19 +5,21 @@ import { Tile } from "./model/Tile.model";
 export class GraphicFactory {
   public static tiles(
     tiles: Tile[],
-    buf: Buffer,
     palette: Buffer,
+    buf: Buffer,
     width = 0,
     height = 0,
   ) {
     tiles.forEach((tile) => {
-      const size = GraphicFactory.tileSize(
-        tile.extraType,
-        tile.width,
-        tile.height,
-        tile.extraRows,
-      );
-      tile.raw = buf.slice(tile.offset, tile.offset + size);
+      if (typeof tile.raw === "undefined") {
+        const size = GraphicFactory.tileSize(
+          tile.extraType,
+          tile.width,
+          tile.height,
+          tile.extraRows,
+        );
+        tile.raw = buf.slice(tile.offset, tile.offset + size);
+      }
 
       const localWidth = tile.x + tile.width;
       if (localWidth > width) {
@@ -93,6 +95,12 @@ export class GraphicFactory {
     for (let h = 0; h < tileHeight; h++) {
       for (let w = 0; w < tileWidth - 1; w++) {
         const source = h * tileWidth + w;
+
+        if (source >= data.length) {
+          console.log("source is large than buffer");
+          break;
+        }
+
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(data.readUInt8(source), target);
@@ -114,6 +122,10 @@ export class GraphicFactory {
       const rowStart = (halfHeight - 1 - h) * 2;
       const rowStop = rowStart + h * 4 + 2;
       for (let w = rowStart; w < rowStop; w++) {
+        if (source >= data.length) {
+          console.log("source is large than buffer");
+          break;
+        }
         const value = data.readUInt8(source++);
         const target = width * (y + h) + (x + w);
 
@@ -153,9 +165,7 @@ export class GraphicFactory {
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
-        // console.log({target, w, h});
       }
-      // console.log("");
     }
 
     // fill bottom
@@ -176,8 +186,7 @@ export class GraphicFactory {
       for (let extra = 0; extra < tile.extraRows; extra += 1) {
         const value = data.readUInt8(source++);
         const target = width * (y + halfHeight - 1) + (x - 2);
-        // console.log("");
-        // console.log({ target, source, length: data.length });
+
         // buf.writeUInt8(value, target);
       }
     }

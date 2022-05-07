@@ -35,15 +35,13 @@ export class Graphic {
           let idx = this.width * y + x;
 
           const col = this.raw.readUInt8(idx);
-          // console.log({idx1: idx, idx2: (idx<<2), idx3: (idx/4), idx4: (idx*4)} );
-          // idx = idx << 2;
           idx = idx * 4;
 
           if (col !== 0) {
             newfile.data[idx] = this.palette.readUInt8(col * 4 + 2);
             newfile.data[idx + 1] = this.palette.readUInt8(col * 4 + 1);
             newfile.data[idx + 2] = this.palette.readUInt8(col * 4);
-            newfile.data[idx + 3] = 0xff; // this.palette.readUInt8(col * 4 + 1);this.palette.readUInt8(col * 4 + 3);
+            newfile.data[idx + 3] = 0xff;
           } else {
             newfile.data[idx] = 0;
             newfile.data[idx + 1] = 0;
