@@ -21,18 +21,6 @@ export class Tile {
 
   public _orthogonal(): Buffer {
     return this.raw;
-    const orthogonalBuf = Buffer.alloc(this.width * this.height);
-
-    for (let h = this.height; h > 0; h -= 1) {
-      this.raw.copy(
-        orthogonalBuf,
-        (h - 1) * this.width,
-        (this.height - h) * this.width,
-        (this.height - h + 1) * this.width + 1,
-      );
-    }
-
-    return orthogonalBuf;
   }
 
   public _isometric(): Buffer {
