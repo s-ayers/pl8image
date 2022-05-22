@@ -3,13 +3,13 @@ Sprite Image (.pl8)
 ###################
 
 .pl8 files are basically bitmaps, with some additional features bolted on.
-There are multiple images (sprites) within one file. The height, width, 
+There are multiple images (sprites) within one file. The height, width,
 and data offset are located in the header.
 
 The color table is stored in a separate file.
 
 A type of "transparency" is supported, despite the color table not supporting
-an alpha channel. 
+an alpha channel.
 
 The image data is located at the 'Data Offset', and is Width x Height long.
 Each byte corresponds to a color in the color table (.256 file).
@@ -65,7 +65,7 @@ Run-length encoding (RLE)
 RLE uses small chunks to encode number of multiple consequent
 transparent or number of consequent opaque pixels.
 
-Firs byte in each chunk indicates how many opaque pixels is in this
+First byte in each chunk indicates how many opaque pixels is in this
 chunk. If the number of opaque pixels is zero, next byte indicates how
 many transparent pixels should be filed in the image.
 

@@ -1,4 +1,3 @@
-import { title } from "process";
 import { Graphic } from "./model/Graphic.model";
 import { Tile } from "./model/Tile.model";
 
@@ -8,7 +7,7 @@ export class GraphicFactory {
     palette: Buffer,
     buf: Buffer,
     width = 0,
-    height = 0,
+    height = 0
   ) {
     tiles.forEach((tile) => {
       if (typeof tile.raw === "undefined") {
@@ -16,7 +15,7 @@ export class GraphicFactory {
           tile.extraType,
           tile.width,
           tile.height,
-          tile.extraRows,
+          tile.extraRows
         );
         tile.raw = buf.slice(tile.offset, tile.offset + size);
       }
@@ -56,13 +55,13 @@ export class GraphicFactory {
     return graphic;
   }
 
-//   public static tile(tile: Tile, buf: Buffer) {}
+  //   public static tile(tile: Tile, buf: Buffer) {}
 
   protected static tileSize(
     type: number,
     width: number,
     height: number,
-    rows: number,
+    rows: number
   ): number {
     let size;
     switch (type) {
@@ -85,6 +84,7 @@ export class GraphicFactory {
 
     return size;
   }
+
   protected static orthogonal(tile: Tile, buf: Buffer, width: number) {
     const tileWidth = tile.width;
     const tileHeight = tile.height;
@@ -97,7 +97,7 @@ export class GraphicFactory {
         const source = h * tileWidth + w;
 
         if (source >= data.length) {
-          console.log("source is large than buffer");
+          console.log("source is large than buffer - orthogonal");
           break;
         }
 
@@ -123,7 +123,7 @@ export class GraphicFactory {
       const rowStop = rowStart + h * 4 + 2;
       for (let w = rowStart; w < rowStop; w++) {
         if (source >= data.length) {
-          console.log("source is large than buffer");
+          console.log("source is large than buffer - isometric - top");
           break;
         }
         const value = data.readUInt8(source++);
@@ -148,12 +148,79 @@ export class GraphicFactory {
   }
 
   protected static isometricExtra(tile: Tile, buf: Buffer, width: number) {
+    const rightBound = tile.x + tile.width;
+    const tileHeight = tile.height;
+    const x = tile.x;
+    const y = tile.y;
+    const data = tile.raw;
+    const halfHeight = tileHeight / 2;
+    const halfWidth = tile.width / 2;
+
+    // Fill top half
+    let source = 0;
+    for (let h = 0; h < halfHeight; h += 1) {
+      const rowStart = (halfHeight - 1 - h) * 2;
+      const rowStop = rowStart + h * 4 + 2;
+      for (let w = rowStart; w < rowStop; w++) {
+        const value = data.readUInt8(source++);
+        const target = width * (y + h) + (x + w);
+        buf.writeUInt8(value, target);
+      }
+    }
+
+    // fill bottom
+    for (let h = halfHeight; h < tileHeight; h += 1) {
+      const rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
+      const rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
+
+      for (let w = rowStart; w < rowStop; w += 1) {
+        const value = data.readUInt8(source++);
+        const target = width * (y + h) + (x + w);
+
+        buf.writeUInt8(value, target);
+      }
+    }
+
+    // Fill Extra
+    if (data.length > source) {
+
+      for (let i = 0, h = halfHeight - 1; i < tile.extraRows; i += 1) {
+        const rowStart = (halfHeight - 1 - h) * 2;
+        const rowStop = rowStart + h * 4 + 2;
+
+        for (let w = 0; w < tile.width; w += 1) {
+          if (source >= data.length) {
+            console.log("source is large than buffer - isometricextra - extra");
+            console.log({w, h, x, y});
+            console.log(tile);
+            break;
+            break;
+          }
+          const value = data.readUInt8(source++);
+          const target = width * (y + h) + (x + w);
+
+          if (w % 2 === 1) {
+            if (w < halfWidth) {
+              h -= 1;
+            } else {
+              h += 1;
+            }
+          }
+          buf.writeUInt8(value, target);
+        }
+        h = halfHeight - i - 1;
+      }
+    }
+  }
+
+  protected static isometricLeft(tile: Tile, buf: Buffer, width: number) {
     const tileWidth = tile.width;
     const tileHeight = tile.height;
     const x = tile.x;
     const y = tile.y;
     const data = tile.raw;
     const halfHeight = tileHeight / 2;
+    const halfWidth = tile.width / 2;
 
     // Fill top half
     let source = 0;
@@ -183,46 +250,24 @@ export class GraphicFactory {
 
     // Fill Extra
     if (data.length > source) {
-      for (let extra = 0; extra < tile.extraRows; extra += 1) {
-        const value = data.readUInt8(source++);
-        const target = width * (y + halfHeight - 1) + (x - 2);
+      for (let i = 2, h = halfHeight - i; i < tile.extraRows; i += 1) {
+        const rowStart = (halfHeight - 1 - h) * 2;
+        const rowStop = rowStart + h * 4 + 2;
 
-        // buf.writeUInt8(value, target);
-      }
-    }
-  }
+        for (let w = 0; w < halfWidth + 1; w += 1) {
+          if (source >= data.length) {
+            console.log("source is large than buffer - isometricleft - extra");
+            break;
+          }
+          const value = data.readUInt8(source++);
+          const target = width * (y + h) + (x + w);
 
-  protected static isometricLeft(tile: Tile, buf: Buffer, width: number) {
-    const tileWidth = tile.width;
-    const tileHeight = tile.height;
-    const x = tile.x;
-    const y = tile.y;
-    const data = tile.raw;
-    const halfHeight = tileHeight / 2;
-
-    // Fill top half
-    let source = 0;
-    for (let h = 0; h < halfHeight; h += 1) {
-      const rowStart = (halfHeight - 1 - h) * 2;
-      const rowStop = rowStart + h * 4 + 2;
-      for (let w = rowStart; w < rowStop; w++) {
-        const value = data.readUInt8(source++);
-        const target = width * (y + h) + (x + w);
-
-        buf.writeUInt8(value, target);
-      }
-    }
-
-    // fill bottom
-    for (let h = halfHeight; h < tileHeight; h += 1) {
-      const rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-      const rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
-
-      for (let w = rowStart; w < rowStop; w++) {
-        const value = data.readUInt8(source++);
-        const target = width * (y + h) + (x + w);
-
-        buf.writeUInt8(value, target);
+          if (w % 2 === 1) {
+            h -= 1;
+          }
+          buf.writeUInt8(value, target);
+        }
+        h = halfHeight - i;
       }
     }
   }
@@ -234,6 +279,7 @@ export class GraphicFactory {
     const y = tile.y;
     const data = tile.raw;
     const halfHeight = tileHeight / 2;
+    const halfWidth = tile.width / 2;
 
     // Fill top half
     let source = 0;
@@ -258,6 +304,25 @@ export class GraphicFactory {
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
+      }
+    }
+
+    // Fill Extra
+    if (data.length > source) {
+      for (let i = 1, h = 0- i; i < tile.extraRows; i += 1) {
+        const rowStart = (halfHeight - 1 - h) * 2;
+        const rowStop = rowStart + h * 4 + 2;
+
+        for (let w = halfWidth - 1; w <  tile.width ; w += 1) {
+          const value = data.readUInt8(source++);
+          const target = width * (y + h) + (x + w);
+
+          if (w % 2 === 1) {
+            h += 1;
+          }
+          buf.writeUInt8(value, target);
+        }
+        h = 0 - i;
       }
     }
   }

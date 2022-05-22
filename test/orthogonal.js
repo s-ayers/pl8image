@@ -2,7 +2,7 @@ var assert = require('assert');
 var fs = require('fs');
 var pl8 = require('../dist/index');
 
-describe('Orthogonal Image', function () {
+xdescribe('Orthogonal Image', function () {
   var caspics;
   var palette;
   this.beforeAll(async function () {

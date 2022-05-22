@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Palette_model_1 = require("./model/Palette.model");
-exports.Palette = Palette_model_1.Palette;
+Object.defineProperty(exports, "Palette", { enumerable: true, get: function () { return Palette_model_1.Palette; } });
 var Pl8_model_1 = require("./model/Pl8.model");
-exports.Image = Pl8_model_1.Image;
+Object.defineProperty(exports, "Image", { enumerable: true, get: function () { return Pl8_model_1.Image; } });
 var pl8_1 = require("./parsers/pl8");
-exports.Pl8 = pl8_1.Pl8;
+Object.defineProperty(exports, "Pl8", { enumerable: true, get: function () { return pl8_1.Pl8; } });
 var graphic_factory_1 = require("./graphic-factory");
-exports.GraphicFactory = graphic_factory_1.GraphicFactory;
+Object.defineProperty(exports, "GraphicFactory", { enumerable: true, get: function () { return graphic_factory_1.GraphicFactory; } });
