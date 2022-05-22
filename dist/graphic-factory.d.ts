@@ -9,4 +9,6 @@ export declare class GraphicFactory {
     protected static isometricExtra(tile: Tile, buf: Buffer, width: number): void;
     protected static isometricLeft(tile: Tile, buf: Buffer, width: number): void;
     protected static isometricRight(tile: Tile, buf: Buffer, width: number): void;
+    protected static isometricTop(tile: Tile, buf: Buffer, width: number): void;
+    protected static isometricBottom(tile: Tile, buf: Buffer, width: number): void;
 }

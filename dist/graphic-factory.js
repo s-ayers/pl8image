@@ -85,39 +85,11 @@ var GraphicFactory = /** @class */ (function () {
         }
     };
     GraphicFactory.isometric = function (tile, buf, width) {
-        var tileWidth = tile.width;
-        var tileHeight = tile.height;
-        var x = tile.x;
-        var y = tile.y;
-        var data = tile.raw;
-        var halfHeight = tileHeight / 2;
-        // Fill top half
-        var source = 0;
-        for (var h = 0; h < halfHeight; h += 1) {
-            var rowStart = (halfHeight - 1 - h) * 2;
-            var rowStop = rowStart + h * 4 + 2;
-            for (var w = rowStart; w < rowStop; w++) {
-                if (source >= data.length) {
-                    console.log("source is large than buffer - isometric - top");
-                    break;
-                }
-                var value = data.readUInt8(source++);
-                var target = width * (y + h) + (x + w);
-                buf.writeUInt8(value, target);
-            }
-        }
-        // fill bottom
-        for (var h = halfHeight; h < tileHeight; h += 1) {
-            var rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-            var rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
-            for (var w = rowStart; w < rowStop; w++) {
-                var value = data.readUInt8(source++);
-                var target = width * (y + h) + (x + w);
-                buf.writeUInt8(value, target);
-            }
-        }
+        this.isometricTop(tile, buf, width);
+        this.isometricBottom(tile, buf, width);
     };
     GraphicFactory.isometricExtra = function (tile, buf, width) {
+        this.isometric(tile, buf, width);
         var rightBound = tile.x + tile.width;
         var tileHeight = tile.height;
         var x = tile.x;
@@ -125,27 +97,7 @@ var GraphicFactory = /** @class */ (function () {
         var data = tile.raw;
         var halfHeight = tileHeight / 2;
         var halfWidth = tile.width / 2;
-        // Fill top half
-        var source = 0;
-        for (var h = 0; h < halfHeight; h += 1) {
-            var rowStart = (halfHeight - 1 - h) * 2;
-            var rowStop = rowStart + h * 4 + 2;
-            for (var w = rowStart; w < rowStop; w++) {
-                var value = data.readUInt8(source++);
-                var target = width * (y + h) + (x + w);
-                buf.writeUInt8(value, target);
-            }
-        }
-        // fill bottom
-        for (var h = halfHeight; h < tileHeight; h += 1) {
-            var rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-            var rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
-            for (var w = rowStart; w < rowStop; w += 1) {
-                var value = data.readUInt8(source++);
-                var target = width * (y + h) + (x + w);
-                buf.writeUInt8(value, target);
-            }
-        }
+        var source = 900;
         // Fill Extra
         if (data.length > source) {
             for (var i = 0, h = halfHeight - 1; i < tile.extraRows; i += 1) {
@@ -176,34 +128,15 @@ var GraphicFactory = /** @class */ (function () {
         }
     };
     GraphicFactory.isometricLeft = function (tile, buf, width) {
-        var tileWidth = tile.width;
+        this.isometric(tile, buf, width);
+        var rightBound = tile.x + tile.width;
         var tileHeight = tile.height;
         var x = tile.x;
         var y = tile.y;
         var data = tile.raw;
         var halfHeight = tileHeight / 2;
         var halfWidth = tile.width / 2;
-        // Fill top half
-        var source = 0;
-        for (var h = 0; h < halfHeight; h += 1) {
-            var rowStart = (halfHeight - 1 - h) * 2;
-            var rowStop = rowStart + h * 4 + 2;
-            for (var w = rowStart; w < rowStop; w++) {
-                var value = data.readUInt8(source++);
-                var target = width * (y + h) + (x + w);
-                buf.writeUInt8(value, target);
-            }
-        }
-        // fill bottom
-        for (var h = halfHeight; h < tileHeight; h += 1) {
-            var rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-            var rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
-            for (var w = rowStart; w < rowStop; w++) {
-                var value = data.readUInt8(source++);
-                var target = width * (y + h) + (x + w);
-                buf.writeUInt8(value, target);
-            }
-        }
+        var source = 900;
         // Fill Extra
         if (data.length > source) {
             for (var i = 2, h = halfHeight - i; i < tile.extraRows; i += 1) {
@@ -226,34 +159,15 @@ var GraphicFactory = /** @class */ (function () {
         }
     };
     GraphicFactory.isometricRight = function (tile, buf, width) {
-        var tileWidth = tile.width;
+        this.isometric(tile, buf, width);
+        var rightBound = tile.x + tile.width;
         var tileHeight = tile.height;
         var x = tile.x;
         var y = tile.y;
         var data = tile.raw;
         var halfHeight = tileHeight / 2;
         var halfWidth = tile.width / 2;
-        // Fill top half
-        var source = 0;
-        for (var h = 0; h < halfHeight; h += 1) {
-            var rowStart = (halfHeight - 1 - h) * 2;
-            var rowStop = rowStart + h * 4 + 2;
-            for (var w = rowStart; w < rowStop; w++) {
-                var value = data.readUInt8(source++);
-                var target = width * (y + h) + (x + w);
-                buf.writeUInt8(value, target);
-            }
-        }
-        // fill bottom
-        for (var h = halfHeight; h < tileHeight; h += 1) {
-            var rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-            var rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
-            for (var w = rowStart; w < rowStop; w++) {
-                var value = data.readUInt8(source++);
-                var target = width * (y + h) + (x + w);
-                buf.writeUInt8(value, target);
-            }
-        }
+        var source = 900;
         // Fill Extra
         if (data.length > source) {
             for (var i = 1, h = 0 - i; i < tile.extraRows; i += 1) {
@@ -268,6 +182,49 @@ var GraphicFactory = /** @class */ (function () {
                     buf.writeUInt8(value, target);
                 }
                 h = 0 - i;
+            }
+        }
+    };
+    GraphicFactory.isometricTop = function (tile, buf, width) {
+        // const tileWidth = tile.width;
+        var tileHeight = tile.height;
+        var x = tile.x;
+        var y = tile.y;
+        var data = tile.raw;
+        var halfHeight = tileHeight / 2;
+        // Fill top half
+        var source = 0;
+        for (var h = 0; h < halfHeight; h += 1) {
+            var rowStart = (halfHeight - 1 - h) * 2;
+            var rowStop = rowStart + h * 4 + 2;
+            for (var w = rowStart; w < rowStop; w++) {
+                if (source >= data.length) {
+                    console.log("source is large than buffer - isometric - top");
+                    break;
+                }
+                var value = data.readUInt8(source++);
+                var target = width * (y + h) + (x + w);
+                buf.writeUInt8(value, target);
+            }
+        }
+    };
+    GraphicFactory.isometricBottom = function (tile, buf, width) {
+        var tileWidth = tile.width;
+        var tileHeight = tile.height;
+        var x = tile.x;
+        var y = tile.y;
+        var data = tile.raw;
+        var halfHeight = tileHeight / 2;
+        // fill bottom
+        var source = 450;
+        for (var h = halfHeight; h < tileHeight; h += 1) {
+            var rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
+            var rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
+            for (var w = rowStart; w < rowStop; w += 1) {
+                var value = data.readUInt8(source);
+                source += 1;
+                var target = width * (y + h) + (x + w);
+                buf.writeUInt8(value, target);
             }
         }
     };
