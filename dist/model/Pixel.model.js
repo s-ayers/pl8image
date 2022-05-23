@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Pixel = void 0;
 var Pixel = /** @class */ (function () {
     function Pixel() {
         this.red = 0;

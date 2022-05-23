@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Tile = void 0;
 var Graphic_model_1 = require("./Graphic.model");
 var Tile = /** @class */ (function () {
     function Tile(width, height, offset, raw) {

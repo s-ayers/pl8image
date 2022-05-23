@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Sprite = void 0;
 var binary_parser_1 = require("binary-parser");
 exports.Sprite = binary_parser_1.Parser.start()
     .useContextVars()

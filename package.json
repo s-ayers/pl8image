@@ -20,6 +20,7 @@
     "@types/pngjs": "^3.4.0",
     "binary-parser": "^2.0.2",
     "pngjs": "^3.4.0",
+    "ts-mocha": "^10.0.0",
     "ts-node": "^8.5.2",
     "tslint": "^5.20.1",
     "typescript": "^3.7.2",

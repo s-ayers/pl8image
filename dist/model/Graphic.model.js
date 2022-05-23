@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Graphic = void 0;
 var pngjs_1 = require("pngjs");
 var createBitmapBuffer = require("@s-ayers/bitmap").createBitmapBuffer;
 var Graphic = /** @class */ (function () {
