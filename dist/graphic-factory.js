@@ -45,7 +45,97 @@ var GraphicFactory = /** @class */ (function () {
         var graphic = new Graphic_model_1.Graphic(width, height, imageData, palette);
         return graphic;
     };
-    //   public static tile(tile: Tile, buf: Buffer) {}
+    GraphicFactory.Pl8 = function (pl8, palette) {
+        var ret;
+        switch (pl8.type) {
+            case 0:
+                // Orthogonal
+                ret = GraphicFactory.orthogonalImage(pl8, palette);
+                break;
+            case 1:
+                // RLE
+                ret = GraphicFactory.RleImage(pl8, palette);
+                break;
+            case 2:
+                // isometric
+                ret = GraphicFactory.isometriclImage(pl8, palette);
+                break;
+        }
+        return ret;
+    };
+    GraphicFactory.orthogonalImage = function (pl8, palette) {
+        var width = pl8.width;
+        var height = pl8.height;
+        pl8.tiles.forEach(function (tile) {
+            var localWidth = tile.x + tile.width;
+            if (localWidth > width) {
+                width = localWidth;
+            }
+            var localHeight = tile.y + tile.height;
+            if (localHeight > height) {
+                height = localHeight;
+            }
+        });
+        var imageData = Buffer.alloc(height * width, 0x00);
+        pl8.tiles.forEach(function (tile) {
+            GraphicFactory.orthogonal(tile, imageData, width);
+        });
+        var graphic = new Graphic_model_1.Graphic(width, height, imageData, palette);
+        return graphic;
+    };
+    GraphicFactory.isometriclImage = function (pl8, palette) {
+        var width = pl8.width;
+        var height = pl8.height;
+        pl8.tiles.forEach(function (tile) {
+            var localWidth = tile.x + tile.width;
+            if (localWidth > width) {
+                width = localWidth;
+            }
+            var localHeight = tile.y + tile.height;
+            if (localHeight > height) {
+                height = localHeight;
+            }
+        });
+        var imageData = Buffer.alloc(height * width, 0x00);
+        pl8.tiles.forEach(function (tile) {
+            switch (tile.extraType) {
+                case 1:
+                    GraphicFactory.isometric(tile, imageData, width);
+                    break;
+                case 2:
+                    GraphicFactory.isometricExtra(tile, imageData, width);
+                    break;
+                case 3:
+                    GraphicFactory.isometricLeft(tile, imageData, width);
+                    break;
+                case 4:
+                    GraphicFactory.isometricRight(tile, imageData, width);
+                    break;
+            }
+        });
+        var graphic = new Graphic_model_1.Graphic(width, height, imageData, palette);
+        return graphic;
+    };
+    GraphicFactory.RleImage = function (pl8, palette) {
+        var width = pl8.width;
+        var height = pl8.height;
+        pl8.tiles.forEach(function (tile) {
+            var localWidth = tile.x + tile.width;
+            if (localWidth > width) {
+                width = localWidth;
+            }
+            var localHeight = tile.y + tile.height;
+            if (localHeight > height) {
+                height = localHeight;
+            }
+        });
+        var imageData = Buffer.alloc(height * width, 0x00);
+        pl8.tiles.forEach(function (tile) {
+            GraphicFactory.runLengthEncoded(tile, imageData, width);
+        });
+        var graphic = new Graphic_model_1.Graphic(width, height, imageData, palette);
+        return graphic;
+    };
     GraphicFactory.tileSize = function (type, width, height, rows) {
         var size;
         switch (type) {
@@ -106,8 +196,6 @@ var GraphicFactory = /** @class */ (function () {
                 for (var w = 0; w < tile.width; w += 1) {
                     if (source >= data.length) {
                         console.log("source is large than buffer - isometricextra - extra");
-                        console.log({ w: w, h: h, x: x, y: y });
-                        console.log(tile);
                         break;
                         break;
                     }
@@ -225,6 +313,32 @@ var GraphicFactory = /** @class */ (function () {
                 source += 1;
                 var target = width * (y + h) + (x + w);
                 buf.writeUInt8(value, target);
+            }
+        }
+    };
+    GraphicFactory.runLengthEncoded = function (tile, buf, width) {
+        var tileWidth = tile.width;
+        var tileHeight = tile.height;
+        var x = tile.x;
+        var y = tile.y;
+        var data = tile.raw;
+        var z = 0;
+        for (var h = 0; h < tileHeight; h += 1) {
+            var w = 0;
+            while (w < tileWidth) {
+                var opaquePixels = data.readUInt8(z++);
+                if (opaquePixels === 0) {
+                    var transparentPixels = data.readUInt8(z++);
+                    w += transparentPixels;
+                }
+                else {
+                    for (var i = 0; i < opaquePixels; i += 1) {
+                        var value = data.readUInt8(z++);
+                        var target = width * (y + h) + (x + w);
+                        buf.writeUInt8(value, target);
+                        w += 1;
+                    }
+                }
             }
         }
     };

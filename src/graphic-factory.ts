@@ -1,4 +1,5 @@
 import { Graphic } from "./model/Graphic.model";
+import { Image } from "./model/Pl8.model";
 import { Tile } from "./model/Tile.model";
 
 export class GraphicFactory {
@@ -7,7 +8,7 @@ export class GraphicFactory {
     palette: Buffer,
     buf: Buffer,
     width = 0,
-    height = 0
+    height = 0,
   ) {
     tiles.forEach((tile) => {
       if (typeof tile.raw === "undefined") {
@@ -15,7 +16,7 @@ export class GraphicFactory {
           tile.extraType,
           tile.width,
           tile.height,
-          tile.extraRows
+          tile.extraRows,
         );
         tile.raw = buf.slice(tile.offset, tile.offset + size);
       }
@@ -52,16 +53,126 @@ export class GraphicFactory {
       }
     });
     const graphic = new Graphic(width, height, imageData, palette);
+
     return graphic;
   }
 
-  //   public static tile(tile: Tile, buf: Buffer) {}
+  public static Pl8(pl8: Image.Pl8Image, palette: Buffer) {
+    let ret;
+    switch (pl8.type) {
+      case 0:
+        // Orthogonal
+        ret = GraphicFactory.orthogonalImage(pl8, palette);
+        break;
+      case 1:
+        // RLE
+        ret = GraphicFactory.RleImage(pl8, palette);
+        break;
+      case 2:
+        // isometric
+        ret = GraphicFactory.isometriclImage(pl8, palette);
+        break;
+    }
+
+    return ret;
+  }
+
+  protected static orthogonalImage(pl8: Image.Pl8Image, palette: Buffer) {
+    let width = pl8.width;
+    let height = pl8.height;
+
+    pl8.tiles.forEach((tile) => {
+      const localWidth = tile.x + tile.width;
+      if (localWidth > width) {
+        width = localWidth;
+      }
+
+      const localHeight = tile.y + tile.height;
+      if (localHeight > height) {
+        height = localHeight;
+      }
+    });
+
+    const imageData = Buffer.alloc(height * width, 0x00);
+    pl8.tiles.forEach((tile) => {
+      GraphicFactory.orthogonal(tile, imageData, width);
+    });
+
+    const graphic = new Graphic(width, height, imageData, palette);
+
+    return graphic;
+  }
+
+  protected static isometriclImage(pl8: Image.Pl8Image, palette: Buffer) {
+    let width = pl8.width;
+    let height = pl8.height;
+
+    pl8.tiles.forEach((tile) => {
+      const localWidth = tile.x + tile.width;
+      if (localWidth > width) {
+        width = localWidth;
+      }
+
+      const localHeight = tile.y + tile.height;
+      if (localHeight > height) {
+        height = localHeight;
+      }
+    });
+
+    const imageData = Buffer.alloc(height * width, 0x00);
+    pl8.tiles.forEach((tile) => {
+      switch (tile.extraType) {
+        case 1:
+          GraphicFactory.isometric(tile, imageData, width);
+          break;
+        case 2:
+          GraphicFactory.isometricExtra(tile, imageData, width);
+          break;
+        case 3:
+          GraphicFactory.isometricLeft(tile, imageData, width);
+          break;
+        case 4:
+          GraphicFactory.isometricRight(tile, imageData, width);
+          break;
+      }
+    });
+
+    const graphic = new Graphic(width, height, imageData, palette);
+
+    return graphic;
+  }
+
+  protected static RleImage(pl8: Image.Pl8Image, palette: Buffer) {
+    let width = pl8.width;
+    let height = pl8.height;
+
+    pl8.tiles.forEach((tile) => {
+      const localWidth = tile.x + tile.width;
+      if (localWidth > width) {
+        width = localWidth;
+      }
+
+      const localHeight = tile.y + tile.height;
+      if (localHeight > height) {
+        height = localHeight;
+      }
+    });
+
+    const imageData = Buffer.alloc(height * width, 0x00);
+    pl8.tiles.forEach((tile) => {
+      GraphicFactory.runLengthEncoded(tile, imageData, width);
+    });
+
+    const graphic = new Graphic(width, height, imageData, palette);
+
+    return graphic;
+  }
 
   protected static tileSize(
     type: number,
     width: number,
     height: number,
-    rows: number
+    rows: number,
   ): number {
     let size;
     switch (type) {
@@ -135,8 +246,6 @@ export class GraphicFactory {
         for (let w = 0; w < tile.width; w += 1) {
           if (source >= data.length) {
             console.log("source is large than buffer - isometricextra - extra");
-            console.log({ w, h, x, y });
-            console.log(tile);
             break;
             break;
           }
@@ -273,6 +382,35 @@ export class GraphicFactory {
         const target = width * (y + h) + (x + w);
 
         buf.writeUInt8(value, target);
+      }
+    }
+  }
+
+  protected static runLengthEncoded(tile: Tile, buf: Buffer, width: number) {
+
+    const tileWidth = tile.width;
+    const tileHeight = tile.height;
+    const x = tile.x;
+    const y = tile.y;
+    const data = tile.raw;
+    let z = 0;
+
+    for (let h = 0; h < tileHeight; h += 1) {
+      let w = 0;
+      while (w < tileWidth) {
+        const opaquePixels = data.readUInt8(z++);
+        if (opaquePixels === 0) {
+          const transparentPixels = data.readUInt8(z++);
+          w += transparentPixels;
+        } else {
+          for (let i = 0; i < opaquePixels; i += 1) {
+            const value = data.readUInt8(z++);
+            const target = width * (y + h) + (x + w);
+            buf.writeUInt8(value, target);
+
+            w += 1;
+          }
+        }
       }
     }
   }
