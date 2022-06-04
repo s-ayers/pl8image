@@ -1,5 +1,5 @@
 import { Parser } from "binary-parser";
-import { Sprite } from "./Sprite";
+import { Sprite } from "./sprite";
 
 export const Pl8 = new Parser()
   .useContextVars()

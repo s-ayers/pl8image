@@ -1,0 +1,18 @@
+export function Palette(data: Buffer) {
+  const palette = Buffer.alloc(256 * 4);
+  for (let i = 0, k = 0, b = 0; i < 256; i++) {
+    if (i === 0) {
+      palette.writeUInt8(0xff, b++); // pix.red = data.readUInt8(k++) << 2;
+      palette.writeUInt8(0xff, b++); // pix.blue = data.readUInt8(k++) << 2;
+      palette.writeUInt8(0xff, b++); // pix.green = data.readUInt8(k++) << 2;
+      palette.writeUInt8(0xff, b++);
+    } else {
+      palette.writeUInt8(data.readUInt8(i * 3 + 2) * 4, b++); // pix.red = data.readUInt8(k++) * 4;
+      palette.writeUInt8(data.readUInt8(i * 3 + 1) * 4, b++); // pix.blue = data.readUInt8(k++) * 4;
+      palette.writeUInt8(data.readUInt8(i * 3) * 4, b++); // pix.green = data.readUInt8(k++) * 4;
+      palette.writeUInt8(0x00, b++);
+    }
+  }
+
+  return palette;
+}
