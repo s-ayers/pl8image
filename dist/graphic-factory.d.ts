@@ -4,17 +4,25 @@ import { Image } from "./model/Pl8.model";
 import { Tile } from "./model/Tile.model";
 export declare class GraphicFactory {
     static tiles(tiles: Tile[], palette: Buffer, buf: Buffer, width?: number, height?: number): Graphic;
-    static Pl8(pl8: Image.Pl8Image, palette: Buffer): Graphic | undefined;
-    protected static orthogonalImage(pl8: Image.Pl8Image, palette: Buffer): Graphic;
-    protected static isometriclImage(pl8: Image.Pl8Image, palette: Buffer): Graphic;
-    protected static RleImage(pl8: Image.Pl8Image, palette: Buffer): Graphic;
-    protected static tileSize(type: number, width: number, height: number, rows: number): number;
+    static Pl8(pl8: Image.Pl8Image, palette: Buffer, buf?: Buffer): Graphic;
+    protected static orthogonalImage(pl8: Image.Pl8Image, palette: Buffer, buf?: Buffer): Graphic;
+    protected static rleImage(pl8: Image.Pl8Image, palette: Buffer, buf?: Buffer): Graphic;
+    static tileSize(type: number, width: number, height: number, rows: number): number;
+    protected static blitTile(tile: Tile, buf: Buffer, width: number): void;
     protected static orthogonal(tile: Tile, buf: Buffer, width: number): void;
+    /**
+     * Diamond-only ISO (extraType 1). Sequential packed rows; no magic offsets.
+     */
     protected static isometric(tile: Tile, buf: Buffer, width: number): void;
-    protected static isometricExtra(tile: Tile, buf: Buffer, width: number): void;
-    protected static isometricLeft(tile: Tile, buf: Buffer, width: number): void;
-    protected static isometricRight(tile: Tile, buf: Buffer, width: number): void;
-    protected static isometricTop(tile: Tile, buf: Buffer, width: number): void;
-    protected static isometricBottom(tile: Tile, buf: Buffer, width: number): void;
+    /**
+     * ISO with extras (extraType 2 both, 3 left, 4 right) per docs/.pl8.rst.
+     */
+    protected static isometricWithExtras(tile: Tile, buf: Buffer, width: number): void;
+    /**
+     * Unpack one isometric tile onto the canvas.
+     * Matches the C++ sample in docs/.pl8.rst: top half, bottom half, then
+     * optional diagonal extra rows. Diamond rows are placed at y + extraRows.
+     */
+    protected static decodeIsometric(tile: Tile, buf: Buffer, canvasWidth: number, withExtras: boolean): void;
     protected static runLengthEncoded(tile: Tile, buf: Buffer, width: number): void;
 }

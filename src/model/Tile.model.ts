@@ -1,3 +1,4 @@
+import { GraphicFactory } from "../graphic-factory";
 import { Graphic } from "./Graphic.model";
 
 export class Tile {
@@ -23,25 +24,6 @@ export class Tile {
     return this.raw;
   }
 
-  public _isometric(): Buffer {
-    let p = this.offset;
-    const isometricBuf = Buffer.alloc(this.width * this.height);
-    const halfHeight = this.height / 2;
-    // Fill top half
-    for (let y = 0; y < halfHeight; y += 1) {
-      const rowStart = (halfHeight - 1 - y) * 2;
-      const rowStop = rowStart + y * 4 + 2;
-
-      for (let x = rowStart; x < rowStop; x += 1) {
-        const target = (y + this.extraRows) * this.width + x;
-        this.raw.copy(isometricBuf, p, target, 1);
-        p += 1;
-      }
-    }
-
-    return isometricBuf;
-  }
-
   public Orthogonal(palette: Buffer): Graphic {
     const data = this._orthogonal();
 
@@ -49,10 +31,21 @@ export class Tile {
     return graphic;
   }
 
+  /** Decode this tile via GraphicFactory (single ISO path). */
   public Isometric(palette: Buffer): Graphic {
-    const data = this._isometric();
-
-    const graphic = new Graphic(this.width, this.height, data, palette);
+    const savedX = this.x;
+    const savedY = this.y;
+    this.x = 0;
+    this.y = 0;
+    const graphic = GraphicFactory.tiles(
+      [this],
+      palette,
+      Buffer.alloc(0),
+      this.width,
+      this.height + this.extraRows,
+    );
+    this.x = savedX;
+    this.y = savedY;
     return graphic;
   }
 

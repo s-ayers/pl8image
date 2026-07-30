@@ -1,6 +1,7 @@
 import * as fs from "fs";
-import {Graphic} from "./Graphic.model";
-import {Tile} from "./Tile.model";
+import { GraphicFactory } from "../graphic-factory";
+import { Graphic } from "./Graphic.model";
+import { Tile } from "./Tile.model";
 
 export namespace Image {
     export enum TYPE {
@@ -35,22 +36,56 @@ export namespace Image {
             const height = data.readUInt16LE(p); p += 2;
             const offset = data.readUInt32LE(p); p += 4;
 
-            const ti = new Tile(width, height, offset, data.slice(offset, offset + (width * height) - 1 ));
+            const x = data.readUInt16LE(p); p += 2;
+            const y = data.readUInt16LE(p); p += 2;
 
-            ti.x = data.readUInt16LE(p); p += 2;
-            ti.y = data.readUInt16LE(p); p += 2;
-
-            ti.extraType = data.readUInt8(p); p += 1;
-            ti.extraRows = data.readUInt8(p); p += 1;
+            const extraType = data.readUInt8(p); p += 1;
+            const extraRows = data.readUInt8(p); p += 1;
 
             p += 2;
+
+            let raw: Buffer;
+            if (type === TYPE.RLE_ENCODED) {
+                raw = data.slice(offset);
+            } else if (type === TYPE.ISOMETRIC) {
+                const size = isoTileSize(extraType, width, height, extraRows);
+                raw = data.slice(offset, offset + size);
+            } else {
+                raw = data.slice(offset, offset + width * height);
+            }
+
+            const ti = new Tile(width, height, offset, raw);
+            ti.x = x;
+            ti.y = y;
+            ti.extraType = extraType;
+            ti.extraRows = extraRows;
 
             tiles.push(ti);
 
         }
         const image = new Pl8Image(tiles, type);
+        image.source = data;
 
         return image;
+    }
+
+    /** Packed ISO payload length — mirrors GraphicFactory.tileSize. */
+    function isoTileSize(
+        extraType: number,
+        width: number,
+        height: number,
+        rows: number,
+    ): number {
+        switch (extraType) {
+            case 2:
+                return height * height + rows * width;
+            case 3:
+            case 4:
+                return height * height + rows * (width / 2 + 1);
+            case 1:
+            default:
+                return height * height;
+        }
     }
 
     export  class Pl8Image {
@@ -59,6 +94,8 @@ export namespace Image {
         public width: number = 640;
         public height: number = 480;
         public type: number;
+        /** Original file buffer; used when re-slicing tile payloads. */
+        public source?: Buffer;
 
         constructor(tiles: Tile[], type: number) {
             this.tiles = tiles;
@@ -69,54 +106,11 @@ export namespace Image {
         }
 
         public Orthogonal(palette: Buffer): Graphic {
-            const imageData = Buffer.alloc(this.height * this.width, 0x00);
-
-            this.tiles.forEach((tile) => {
-                const width = tile.width;
-                const height = tile.height;
-                const x = tile.x;
-                const y = tile.y;
-                const data = tile._orthogonal();
-
-                for (let h = 0; h < height; h++) {
-                    for (let w = 0; w < width - 1; w++) {
-                        const source = (h * width) + w;
-                        const target = (this.width * (y + h) + (x + w));
-
-                        imageData.writeUInt8(data.readUInt8(source), target);
-
-                    }
-                }
-            });
-
-            const graphic = new Graphic(this.width, this.height, imageData, palette);
-
-            return graphic;
+            return GraphicFactory.Pl8(this, palette, this.source);
         }
 
         public Isometric(palette: Buffer): Graphic {
-            const imageData = Buffer.alloc(this.height * this.width, 0x00);
-
-            this.tiles.forEach((tile) => {
-                const width = tile.width;
-                const height = tile.height;
-                const x = tile.x;
-                const y = tile.y;
-                const data = tile._isometric();
-                for (let h = 0; h < height; h++) {
-                    for (let w = 0; w < width - 1; w++) {
-                        const source = (h * width) + w;
-                        const target = (this.width * (y + h) + (x + w));
-
-                        imageData.writeUInt8(data.readUInt8(source), target);
-
-                    }
-                }
-            });
-
-            const graphic = new Graphic(this.width, this.height, imageData, palette);
-
-            return graphic;
+            return GraphicFactory.Pl8(this, palette, this.source);
         }
     }
 }

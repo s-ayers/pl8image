@@ -11,7 +11,7 @@ export class GraphicFactory {
     height = 0,
   ) {
     tiles.forEach((tile) => {
-      if (typeof tile.raw === "undefined") {
+      if (typeof tile.raw === "undefined" || tile.raw.length === 0) {
         const size = GraphicFactory.tileSize(
           tile.extraType,
           tile.width,
@@ -26,7 +26,7 @@ export class GraphicFactory {
         width = localWidth;
       }
 
-      const localHeight = tile.y + tile.height;
+      const localHeight = tile.y + tile.height + tile.extraRows;
       if (localHeight > height) {
         height = localHeight;
       }
@@ -34,119 +34,62 @@ export class GraphicFactory {
 
     const imageData = Buffer.alloc(height * width, 0x00);
     tiles.forEach((tile) => {
-      switch (tile.extraType) {
-        case 0:
-          GraphicFactory.orthogonal(tile, imageData, width);
-          break;
-        case 1:
-          GraphicFactory.isometric(tile, imageData, width);
-          break;
-        case 2:
-          GraphicFactory.isometricExtra(tile, imageData, width);
-          break;
-        case 3:
-          GraphicFactory.isometricLeft(tile, imageData, width);
-          break;
-        case 4:
-          GraphicFactory.isometricRight(tile, imageData, width);
-          break;
-      }
+      GraphicFactory.blitTile(tile, imageData, width);
     });
     const graphic = new Graphic(width, height, imageData, palette);
 
     return graphic;
   }
 
-  public static Pl8(pl8: Image.Pl8Image, palette: Buffer) {
-    let ret;
+  public static Pl8(pl8: Image.Pl8Image, palette: Buffer, buf?: Buffer) {
     switch (pl8.type) {
       case 0:
-        // Orthogonal
-        ret = GraphicFactory.orthogonalImage(pl8, palette);
-        break;
+        return GraphicFactory.orthogonalImage(pl8, palette, buf);
       case 1:
-        // RLE
-        ret = GraphicFactory.RleImage(pl8, palette);
-        break;
+        return GraphicFactory.rleImage(pl8, palette, buf);
       case 2:
-        // isometric
-        ret = GraphicFactory.isometriclImage(pl8, palette);
-        break;
+      default:
+        return GraphicFactory.tiles(
+          pl8.tiles,
+          palette,
+          buf || Buffer.alloc(0),
+          pl8.width,
+          pl8.height,
+        );
     }
-
-    return ret;
   }
 
-  protected static orthogonalImage(pl8: Image.Pl8Image, palette: Buffer) {
+  protected static orthogonalImage(
+    pl8: Image.Pl8Image,
+    palette: Buffer,
+    buf?: Buffer,
+  ) {
+    return GraphicFactory.tiles(
+      pl8.tiles,
+      palette,
+      buf || Buffer.alloc(0),
+      pl8.width,
+      pl8.height,
+    );
+  }
+
+  protected static rleImage(
+    pl8: Image.Pl8Image,
+    palette: Buffer,
+    buf?: Buffer,
+  ) {
     let width = pl8.width;
     let height = pl8.height;
 
     pl8.tiles.forEach((tile) => {
-      const localWidth = tile.x + tile.width;
-      if (localWidth > width) {
-        width = localWidth;
+      if (typeof tile.raw === "undefined" || tile.raw.length === 0) {
+        if (buf) {
+          // RLE length is not known from header; use remainder / next offset
+          // Heuristic: slice until next tile offset or end of buffer.
+          tile.raw = buf.slice(tile.offset);
+        }
       }
 
-      const localHeight = tile.y + tile.height;
-      if (localHeight > height) {
-        height = localHeight;
-      }
-    });
-
-    const imageData = Buffer.alloc(height * width, 0x00);
-    pl8.tiles.forEach((tile) => {
-      GraphicFactory.orthogonal(tile, imageData, width);
-    });
-
-    const graphic = new Graphic(width, height, imageData, palette);
-
-    return graphic;
-  }
-
-  protected static isometriclImage(pl8: Image.Pl8Image, palette: Buffer) {
-    let width = pl8.width;
-    let height = pl8.height;
-
-    pl8.tiles.forEach((tile) => {
-      const localWidth = tile.x + tile.width;
-      if (localWidth > width) {
-        width = localWidth;
-      }
-
-      const localHeight = tile.y + tile.height;
-      if (localHeight > height) {
-        height = localHeight;
-      }
-    });
-
-    const imageData = Buffer.alloc(height * width, 0x00);
-    pl8.tiles.forEach((tile) => {
-      switch (tile.extraType) {
-        case 1:
-          GraphicFactory.isometric(tile, imageData, width);
-          break;
-        case 2:
-          GraphicFactory.isometricExtra(tile, imageData, width);
-          break;
-        case 3:
-          GraphicFactory.isometricLeft(tile, imageData, width);
-          break;
-        case 4:
-          GraphicFactory.isometricRight(tile, imageData, width);
-          break;
-      }
-    });
-
-    const graphic = new Graphic(width, height, imageData, palette);
-
-    return graphic;
-  }
-
-  protected static RleImage(pl8: Image.Pl8Image, palette: Buffer) {
-    let width = pl8.width;
-    let height = pl8.height;
-
-    pl8.tiles.forEach((tile) => {
       const localWidth = tile.x + tile.width;
       if (localWidth > width) {
         width = localWidth;
@@ -163,12 +106,10 @@ export class GraphicFactory {
       GraphicFactory.runLengthEncoded(tile, imageData, width);
     });
 
-    const graphic = new Graphic(width, height, imageData, palette);
-
-    return graphic;
+    return new Graphic(width, height, imageData, palette);
   }
 
-  protected static tileSize(
+  public static tileSize(
     type: number,
     width: number,
     height: number,
@@ -196,6 +137,22 @@ export class GraphicFactory {
     return size;
   }
 
+  protected static blitTile(tile: Tile, buf: Buffer, width: number) {
+    switch (tile.extraType) {
+      case 0:
+        GraphicFactory.orthogonal(tile, buf, width);
+        break;
+      case 1:
+        GraphicFactory.isometric(tile, buf, width);
+        break;
+      case 2:
+      case 3:
+      case 4:
+        GraphicFactory.isometricWithExtras(tile, buf, width);
+        break;
+    }
+  }
+
   protected static orthogonal(tile: Tile, buf: Buffer, width: number) {
     const tileWidth = tile.width;
     const tileHeight = tile.height;
@@ -208,8 +165,7 @@ export class GraphicFactory {
         const source = h * tileWidth + w;
 
         if (source >= data.length) {
-          console.log("source is large than buffer - orthogonal");
-          break;
+          return;
         }
 
         const target = width * (y + h) + (x + w);
@@ -219,175 +175,104 @@ export class GraphicFactory {
     }
   }
 
+  /**
+   * Diamond-only ISO (extraType 1). Sequential packed rows; no magic offsets.
+   */
   protected static isometric(tile: Tile, buf: Buffer, width: number) {
-    this.isometricTop(tile, buf, width);
-    this.isometricBottom(tile, buf, width);
+    GraphicFactory.decodeIsometric(tile, buf, width, false);
   }
 
-  protected static isometricExtra(tile: Tile, buf: Buffer, width: number) {
-    this.isometric(tile, buf, width);
+  /**
+   * ISO with extras (extraType 2 both, 3 left, 4 right) per docs/.pl8.rst.
+   */
+  protected static isometricWithExtras(
+    tile: Tile,
+    buf: Buffer,
+    width: number,
+  ) {
+    GraphicFactory.decodeIsometric(tile, buf, width, true);
+  }
 
-    const rightBound = tile.x + tile.width;
-    const tileHeight = tile.height;
-    const x = tile.x;
-    const y = tile.y;
+  /**
+   * Unpack one isometric tile onto the canvas.
+   * Matches the C++ sample in docs/.pl8.rst: top half, bottom half, then
+   * optional diagonal extra rows. Diamond rows are placed at y + extraRows.
+   */
+  protected static decodeIsometric(
+    tile: Tile,
+    buf: Buffer,
+    canvasWidth: number,
+    withExtras: boolean,
+  ) {
     const data = tile.raw;
-    const halfHeight = tileHeight / 2;
-    const halfWidth = tile.width / 2;
-
-    let source = 900;
-
-    // Fill Extra
-    if (data.length > source) {
-      for (let i = 0, h = halfHeight - 1; i < tile.extraRows; i += 1) {
-        const rowStart = (halfHeight - 1 - h) * 2;
-        const rowStop = rowStart + h * 4 + 2;
-
-        for (let w = 0; w < tile.width; w += 1) {
-          if (source >= data.length) {
-            console.log("source is large than buffer - isometricextra - extra");
-            break;
-            break;
-          }
-          const value = data.readUInt8(source++);
-          const target = width * (y + h) + (x + w);
-
-          if (w % 2 === 1) {
-            if (w < halfWidth) {
-              h -= 1;
-            } else {
-              h += 1;
-            }
-          }
-          buf.writeUInt8(value, target);
-        }
-        h = halfHeight - i - 1;
-      }
+    if (!data || data.length === 0) {
+      return;
     }
-  }
 
-  protected static isometricLeft(tile: Tile, buf: Buffer, width: number) {
-    this.isometric(tile, buf, width);
-
-    const rightBound = tile.x + tile.width;
     const tileHeight = tile.height;
-    const x = tile.x;
-    const y = tile.y;
-    const data = tile.raw;
+    const tileWidth = tile.width;
     const halfHeight = tileHeight / 2;
-    const halfWidth = tile.width / 2;
+    const halfWidth = tileWidth / 2;
+    const extraRows = tile.extraRows;
+    const originX = tile.x;
+    const originY = tile.y;
+    let source = 0;
 
-    let source = 900;
-
-    // Fill Extra
-    if (data.length > source) {
-      for (let i = 2, h = halfHeight - i; i < tile.extraRows; i += 1) {
-        const rowStart = (halfHeight - 1 - h) * 2;
-        const rowStop = rowStart + h * 4 + 2;
-
-        for (let w = 0; w < halfWidth + 1; w += 1) {
-          if (source >= data.length) {
-            console.log("source is large than buffer - isometricleft - extra");
-            break;
-          }
-          const value = data.readUInt8(source++);
-          const target = width * (y + h) + (x + w);
-
-          if (w % 2 === 1) {
-            h -= 1;
-          }
-          buf.writeUInt8(value, target);
-        }
-        h = halfHeight - i;
+    const writePixel = (localX: number, localY: number, value: number) => {
+      const target = canvasWidth * (originY + localY) + (originX + localX);
+      if (target >= 0 && target < buf.length) {
+        buf.writeUInt8(value, target);
       }
-    }
-  }
-
-  protected static isometricRight(tile: Tile, buf: Buffer, width: number) {
-    this.isometric(tile, buf, width);
-
-    const rightBound = tile.x + tile.width;
-    const tileHeight = tile.height;
-    const x = tile.x;
-    const y = tile.y;
-    const data = tile.raw;
-    const halfHeight = tileHeight / 2;
-    const halfWidth = tile.width / 2;
-
-    let source = 900;
-
-    // Fill Extra
-    if (data.length > source) {
-      for (let i = 1, h = 0 - i; i < tile.extraRows; i += 1) {
-        const rowStart = (halfHeight - 1 - h) * 2;
-        const rowStop = rowStart + h * 4 + 2;
-
-        for (let w = halfWidth - 1; w < tile.width; w += 1) {
-          const value = data.readUInt8(source++);
-          const target = width * (y + h) + (x + w);
-
-          if (w % 2 === 1) {
-            h += 1;
-          }
-          buf.writeUInt8(value, target);
-        }
-        h = 0 - i;
-      }
-    }
-  }
-
-  protected static isometricTop(tile: Tile, buf: Buffer, width: number) {
-    // const tileWidth = tile.width;
-    const tileHeight = tile.height;
-    const x = tile.x;
-    const y = tile.y;
-    const data = tile.raw;
-    const halfHeight = tileHeight / 2;
+    };
 
     // Fill top half
-    let source = 0;
-    for (let h = 0; h < halfHeight; h += 1) {
-      const rowStart = (halfHeight - 1 - h) * 2;
-      const rowStop = rowStart + h * 4 + 2;
-      for (let w = rowStart; w < rowStop; w++) {
+    for (let y = 0; y < halfHeight; y += 1) {
+      const rowStart = (halfHeight - 1 - y) * 2;
+      const rowStop = rowStart + y * 4 + 2;
+      for (let x = rowStart; x < rowStop; x += 1) {
         if (source >= data.length) {
-          console.log("source is large than buffer - isometric - top");
-          break;
+          return;
         }
-        const value = data.readUInt8(source++);
-        const target = width * (y + h) + (x + w);
-
-        buf.writeUInt8(value, target);
+        writePixel(x, y + extraRows, data.readUInt8(source++));
       }
     }
-  }
 
-  protected static isometricBottom(tile: Tile, buf: Buffer, width: number) {
-    const tileWidth = tile.width;
-    const tileHeight = tile.height;
-    const x = tile.x;
-    const y = tile.y;
-    const data = tile.raw;
-    const halfHeight = tileHeight / 2;
+    // Fill bottom half (continues sequential cursor)
+    for (let y = halfHeight; y < tileHeight; y += 1) {
+      const rowStart = (halfHeight - 1 - (tileHeight - y - 1)) * 2;
+      const rowStop = rowStart + (tileHeight - y - 1) * 4 + 2;
+      for (let x = rowStart; x < rowStop; x += 1) {
+        if (source >= data.length) {
+          return;
+        }
+        writePixel(x, y + extraRows, data.readUInt8(source++));
+      }
+    }
 
-    // fill bottom
-    let source = 450;
-    for (let h = halfHeight; h < tileHeight; h += 1) {
-      const rowStart = (halfHeight - 1 - (tileHeight - h - 1)) * 2;
-      const rowStop = rowStart + (tileHeight - h - 1) * 4 + 2;
+    if (!withExtras || extraRows <= 0) {
+      return;
+    }
 
-      for (let w = rowStart; w < rowStop; w += 1) {
-        const value = data.readUInt8(source);
-        source += 1;
-        const target = width * (y + h) + (x + w);
+    // Fill extra rows (diagonal) — docs/.pl8.rst
+    for (let y_ = extraRows; y_ > 0; y_ -= 1) {
+      const rightOffset =
+        tile.extraType === 3 ? halfWidth + 1 : tileWidth;
+      const leftOffset = tile.extraType === 4 ? halfWidth - 1 : 0;
 
-        buf.writeUInt8(value, target);
+      for (let x = leftOffset; x < rightOffset; x += 1) {
+        if (source >= data.length) {
+          return;
+        }
+        const y =
+          x <= halfWidth
+            ? y_ + (halfHeight - 1) - Math.floor(x / 2)
+            : y_ + Math.floor(x / 2) - (halfHeight - 1);
+        writePixel(x, y, data.readUInt8(source++));
       }
     }
   }
 
   protected static runLengthEncoded(tile: Tile, buf: Buffer, width: number) {
-
     const tileWidth = tile.width;
     const tileHeight = tile.height;
     const x = tile.x;
@@ -398,12 +283,21 @@ export class GraphicFactory {
     for (let h = 0; h < tileHeight; h += 1) {
       let w = 0;
       while (w < tileWidth) {
+        if (z >= data.length) {
+          return;
+        }
         const opaquePixels = data.readUInt8(z++);
         if (opaquePixels === 0) {
+          if (z >= data.length) {
+            return;
+          }
           const transparentPixels = data.readUInt8(z++);
           w += transparentPixels;
         } else {
           for (let i = 0; i < opaquePixels; i += 1) {
+            if (z >= data.length) {
+              return;
+            }
             const value = data.readUInt8(z++);
             const target = width * (y + h) + (x + w);
             buf.writeUInt8(value, target);
