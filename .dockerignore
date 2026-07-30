@@ -1,0 +1,15 @@
+node_modules
+data
+docs
+.git
+.github
+.vscode
+.vs
+coverage
+.nyc_output
+*.log
+.env
+*.md
+.dockerignore
+Dockerfile
+docker-compose.yml

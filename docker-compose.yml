@@ -1,0 +1,6 @@
+services:
+  pl8image:
+    build: .
+    volumes:
+      - .:/work
+    working_dir: /work

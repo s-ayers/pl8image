@@ -15,7 +15,7 @@
     "pl8image": "./bin/index.js"
   },
   "dependencies": {
-    "@s-ayers/bitmap": "github:s-ayers/bitmap-js",
+    "@s-ayers/bitmap": "git+https://github.com/s-ayers/bitmap-js.git#38f168d1a0767c1f7aa92841a9dd7388ed7480a2",
     "@types/node": "^12.12.12",
     "@types/pngjs": "^3.4.0",
     "binary-parser": "^2.0.2",
