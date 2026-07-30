@@ -11,8 +11,8 @@ export declare class Tile {
     raw: Buffer;
     constructor(width: number, height: number, offset: number, raw: Buffer);
     _orthogonal(): Buffer;
-    _isometric(): Buffer;
     Orthogonal(palette: Buffer): Graphic;
+    /** Decode this tile via GraphicFactory (single ISO path). */
     Isometric(palette: Buffer): Graphic;
     Rle(): Buffer;
 }

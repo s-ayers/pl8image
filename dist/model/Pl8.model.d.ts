@@ -14,6 +14,8 @@ export declare namespace Image {
         width: number;
         height: number;
         type: number;
+        /** Original file buffer; used when re-slicing tile payloads. */
+        source?: Buffer;
         constructor(tiles: Tile[], type: number);
         add(ti: Tile): void;
         Orthogonal(palette: Buffer): Graphic;

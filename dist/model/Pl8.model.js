@@ -21,7 +21,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Image = void 0;
 var fs = __importStar(require("fs"));
-var Graphic_model_1 = require("./Graphic.model");
+var graphic_factory_1 = require("../graphic-factory");
 var Tile_model_1 = require("./Tile.model");
 var Image;
 (function (Image) {
@@ -58,22 +58,51 @@ var Image;
             p += 2;
             var offset = data.readUInt32LE(p);
             p += 4;
-            var ti = new Tile_model_1.Tile(width, height, offset, data.slice(offset, offset + (width * height) - 1));
-            ti.x = data.readUInt16LE(p);
+            var x = data.readUInt16LE(p);
             p += 2;
-            ti.y = data.readUInt16LE(p);
+            var y = data.readUInt16LE(p);
             p += 2;
-            ti.extraType = data.readUInt8(p);
+            var extraType = data.readUInt8(p);
             p += 1;
-            ti.extraRows = data.readUInt8(p);
+            var extraRows = data.readUInt8(p);
             p += 1;
             p += 2;
+            var raw = void 0;
+            if (type === TYPE.RLE_ENCODED) {
+                raw = data.slice(offset);
+            }
+            else if (type === TYPE.ISOMETRIC) {
+                var size = isoTileSize(extraType, width, height, extraRows);
+                raw = data.slice(offset, offset + size);
+            }
+            else {
+                raw = data.slice(offset, offset + width * height);
+            }
+            var ti = new Tile_model_1.Tile(width, height, offset, raw);
+            ti.x = x;
+            ti.y = y;
+            ti.extraType = extraType;
+            ti.extraRows = extraRows;
             tiles.push(ti);
         }
         var image = new Pl8Image(tiles, type);
+        image.source = data;
         return image;
     }
     Image.buffer = buffer;
+    /** Packed ISO payload length — mirrors GraphicFactory.tileSize. */
+    function isoTileSize(extraType, width, height, rows) {
+        switch (extraType) {
+            case 2:
+                return height * height + rows * width;
+            case 3:
+            case 4:
+                return height * height + rows * (width / 2 + 1);
+            case 1:
+            default:
+                return height * height;
+        }
+    }
     var Pl8Image = /** @class */ (function () {
         function Pl8Image(tiles, type) {
             this.tiles = [];
@@ -86,44 +115,10 @@ var Image;
             this.tiles.push(ti);
         };
         Pl8Image.prototype.Orthogonal = function (palette) {
-            var _this = this;
-            var imageData = Buffer.alloc(this.height * this.width, 0x00);
-            this.tiles.forEach(function (tile) {
-                var width = tile.width;
-                var height = tile.height;
-                var x = tile.x;
-                var y = tile.y;
-                var data = tile._orthogonal();
-                for (var h = 0; h < height; h++) {
-                    for (var w = 0; w < width - 1; w++) {
-                        var source = (h * width) + w;
-                        var target = (_this.width * (y + h) + (x + w));
-                        imageData.writeUInt8(data.readUInt8(source), target);
-                    }
-                }
-            });
-            var graphic = new Graphic_model_1.Graphic(this.width, this.height, imageData, palette);
-            return graphic;
+            return graphic_factory_1.GraphicFactory.Pl8(this, palette, this.source);
         };
         Pl8Image.prototype.Isometric = function (palette) {
-            var _this = this;
-            var imageData = Buffer.alloc(this.height * this.width, 0x00);
-            this.tiles.forEach(function (tile) {
-                var width = tile.width;
-                var height = tile.height;
-                var x = tile.x;
-                var y = tile.y;
-                var data = tile._isometric();
-                for (var h = 0; h < height; h++) {
-                    for (var w = 0; w < width - 1; w++) {
-                        var source = (h * width) + w;
-                        var target = (_this.width * (y + h) + (x + w));
-                        imageData.writeUInt8(data.readUInt8(source), target);
-                    }
-                }
-            });
-            var graphic = new Graphic_model_1.Graphic(this.width, this.height, imageData, palette);
-            return graphic;
+            return graphic_factory_1.GraphicFactory.Pl8(this, palette, this.source);
         };
         return Pl8Image;
     }());
