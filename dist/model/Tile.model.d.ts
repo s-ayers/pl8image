@@ -14,5 +14,6 @@ export declare class Tile {
     Orthogonal(palette: Buffer): Graphic;
     /** Decode this tile via GraphicFactory (single ISO path). */
     Isometric(palette: Buffer): Graphic;
-    Rle(): Buffer;
+    /** Decode this tile via GraphicFactory (single RLE path). */
+    Rle(palette: Buffer): Graphic;
 }

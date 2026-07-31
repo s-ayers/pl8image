@@ -73,6 +73,18 @@ export class GraphicFactory {
     );
   }
 
+  /**
+   * End offset of an RLE tile payload: next tile's offset, or EOF.
+   * Stream length is not in the header; game files pack tiles back-to-back.
+   */
+  public static rlePayloadEnd(
+    tiles: Tile[],
+    index: number,
+    bufLength: number,
+  ): number {
+    return index + 1 < tiles.length ? tiles[index + 1].offset : bufLength;
+  }
+
   protected static rleImage(
     pl8: Image.Pl8Image,
     palette: Buffer,
@@ -81,12 +93,15 @@ export class GraphicFactory {
     let width = pl8.width;
     let height = pl8.height;
 
-    pl8.tiles.forEach((tile) => {
+    pl8.tiles.forEach((tile, index) => {
       if (typeof tile.raw === "undefined" || tile.raw.length === 0) {
         if (buf) {
-          // RLE length is not known from header; use remainder / next offset
-          // Heuristic: slice until next tile offset or end of buffer.
-          tile.raw = buf.slice(tile.offset);
+          const end = GraphicFactory.rlePayloadEnd(
+            pl8.tiles,
+            index,
+            buf.length,
+          );
+          tile.raw = buf.slice(tile.offset, end);
         }
       }
 

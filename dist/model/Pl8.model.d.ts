@@ -19,6 +19,7 @@ export declare namespace Image {
         constructor(tiles: Tile[], type: number);
         add(ti: Tile): void;
         Orthogonal(palette: Buffer): Graphic;
+        Rle(palette: Buffer): Graphic;
         Isometric(palette: Buffer): Graphic;
     }
 }

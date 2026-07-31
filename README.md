@@ -38,4 +38,4 @@ docker run --rm -v "$PWD:/work" -w /work pl8image -p ./MySprite.pl8 -b ./MyPal.2
 
 ## Tests
 
-See [docs/fixtures.md](docs/fixtures.md) for obtaining LoTR2 fixtures under `data/` (gitignored).
+See [docs/fixtures.md](docs/fixtures.md) for obtaining LoTR2 fixtures under `data/` (gitignored), including optional type-1 RLE samples (`A2_miss.pl8`).

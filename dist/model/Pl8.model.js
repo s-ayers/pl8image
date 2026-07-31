@@ -69,7 +69,8 @@ var Image;
             p += 2;
             var raw = void 0;
             if (type === TYPE.RLE_ENCODED) {
-                raw = data.slice(offset);
+                // Bound after all headers are known (next tile offset / EOF).
+                raw = Buffer.alloc(0);
             }
             else if (type === TYPE.ISOMETRIC) {
                 var size = isoTileSize(extraType, width, height, extraRows);
@@ -84,6 +85,12 @@ var Image;
             ti.extraType = extraType;
             ti.extraRows = extraRows;
             tiles.push(ti);
+        }
+        if (type === TYPE.RLE_ENCODED) {
+            for (var i = 0; i < tiles.length; i++) {
+                var end = graphic_factory_1.GraphicFactory.rlePayloadEnd(tiles, i, data.length);
+                tiles[i].raw = data.slice(tiles[i].offset, end);
+            }
         }
         var image = new Pl8Image(tiles, type);
         image.source = data;
@@ -115,6 +122,9 @@ var Image;
             this.tiles.push(ti);
         };
         Pl8Image.prototype.Orthogonal = function (palette) {
+            return graphic_factory_1.GraphicFactory.Pl8(this, palette, this.source);
+        };
+        Pl8Image.prototype.Rle = function (palette) {
             return graphic_factory_1.GraphicFactory.Pl8(this, palette, this.source);
         };
         Pl8Image.prototype.Isometric = function (palette) {

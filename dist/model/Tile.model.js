@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tile = void 0;
 var graphic_factory_1 = require("../graphic-factory");
 var Graphic_model_1 = require("./Graphic.model");
+var Pl8_model_1 = require("./Pl8.model");
 var Tile = /** @class */ (function () {
     function Tile(width, height, offset, raw) {
         this.width = 0;
@@ -36,9 +37,19 @@ var Tile = /** @class */ (function () {
         this.y = savedY;
         return graphic;
     };
-    Tile.prototype.Rle = function () {
-        var data = Buffer.alloc(this.width * this.height * 4);
-        return data;
+    /** Decode this tile via GraphicFactory (single RLE path). */
+    Tile.prototype.Rle = function (palette) {
+        var savedX = this.x;
+        var savedY = this.y;
+        this.x = 0;
+        this.y = 0;
+        var pl8 = new Pl8_model_1.Image.Pl8Image([this], Pl8_model_1.Image.TYPE.RLE_ENCODED);
+        pl8.width = this.width;
+        pl8.height = this.height;
+        var graphic = graphic_factory_1.GraphicFactory.Pl8(pl8, palette);
+        this.x = savedX;
+        this.y = savedY;
+        return graphic;
     };
     return Tile;
 }());

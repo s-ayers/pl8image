@@ -6,6 +6,11 @@ export declare class GraphicFactory {
     static tiles(tiles: Tile[], palette: Buffer, buf: Buffer, width?: number, height?: number): Graphic;
     static Pl8(pl8: Image.Pl8Image, palette: Buffer, buf?: Buffer): Graphic;
     protected static orthogonalImage(pl8: Image.Pl8Image, palette: Buffer, buf?: Buffer): Graphic;
+    /**
+     * End offset of an RLE tile payload: next tile's offset, or EOF.
+     * Stream length is not in the header; game files pack tiles back-to-back.
+     */
+    static rlePayloadEnd(tiles: Tile[], index: number, bufLength: number): number;
     protected static rleImage(pl8: Image.Pl8Image, palette: Buffer, buf?: Buffer): Graphic;
     static tileSize(type: number, width: number, height: number, rows: number): number;
     protected static blitTile(tile: Tile, buf: Buffer, width: number): void;

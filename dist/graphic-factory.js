@@ -43,15 +43,21 @@ var GraphicFactory = /** @class */ (function () {
     GraphicFactory.orthogonalImage = function (pl8, palette, buf) {
         return GraphicFactory.tiles(pl8.tiles, palette, buf || Buffer.alloc(0), pl8.width, pl8.height);
     };
+    /**
+     * End offset of an RLE tile payload: next tile's offset, or EOF.
+     * Stream length is not in the header; game files pack tiles back-to-back.
+     */
+    GraphicFactory.rlePayloadEnd = function (tiles, index, bufLength) {
+        return index + 1 < tiles.length ? tiles[index + 1].offset : bufLength;
+    };
     GraphicFactory.rleImage = function (pl8, palette, buf) {
         var width = pl8.width;
         var height = pl8.height;
-        pl8.tiles.forEach(function (tile) {
+        pl8.tiles.forEach(function (tile, index) {
             if (typeof tile.raw === "undefined" || tile.raw.length === 0) {
                 if (buf) {
-                    // RLE length is not known from header; use remainder / next offset
-                    // Heuristic: slice until next tile offset or end of buffer.
-                    tile.raw = buf.slice(tile.offset);
+                    var end = GraphicFactory.rlePayloadEnd(pl8.tiles, index, buf.length);
+                    tile.raw = buf.slice(tile.offset, end);
                 }
             }
             var localWidth = tile.x + tile.width;

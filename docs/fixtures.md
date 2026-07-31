@@ -18,6 +18,18 @@ Optional (orthogonal suite, currently disabled):
 | `data/Caspics.pl8` | `Caspics.pl8` |
 | `data/Cas_back.256` | `Cas_back.256` |
 
+Optional (RLE / type-1 suite — skipped when missing):
+
+| Path | Source | Notes |
+|------|--------|-------|
+| `data/A2_miss.pl8` | `A2_miss.pl8` | Recommended; 81 small tiles |
+| `data/Base01.256` | `Base01.256` | Used only to exercise export path |
+
+Other type-1 (chunk RLE) examples in a typical install: `A2b_knig.pl8`,
+`Peasant.pl8`, `Engine.pl8`. File type `1` uses chunk RLE per
+[`docs/.pl8.rst`](.pl8.rst); each tile’s stream length is
+`nextTile.offset - tile.offset` (last tile runs to EOF).
+
 ## Setup
 
 ```bash
@@ -26,18 +38,22 @@ mkdir -p data/out
 GAME="$HOME/Desktop/GOG Games/Lords of the Realm II"
 ln -sf "$GAME/Mtns1a.pl8" data/Mtns1a.pl8
 ln -sf "$GAME/Base01.256" data/Base01.256
+# Optional RLE fixture:
+ln -sf "$GAME/A2_miss.pl8" data/A2_miss.pl8
 ```
 
 Copy instead of symlink if you prefer:
 
 ```bash
 cp "$GAME/Mtns1a.pl8" "$GAME/Base01.256" data/
+cp "$GAME/A2_miss.pl8" data/
 ```
 
 ## Golden digests
 
 Committed SHA-256 digests of composed exports live under `test/golden/`.
-Integration tests skip when `data/Mtns1a.pl8` is missing.
+Integration tests skip when `data/Mtns1a.pl8` is missing. RLE synthetic
+tests always run; the `A2_miss` suite skips when that file is absent.
 
 ## Reference (visual only)
 

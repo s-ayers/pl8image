@@ -46,7 +46,8 @@ export namespace Image {
 
             let raw: Buffer;
             if (type === TYPE.RLE_ENCODED) {
-                raw = data.slice(offset);
+                // Bound after all headers are known (next tile offset / EOF).
+                raw = Buffer.alloc(0);
             } else if (type === TYPE.ISOMETRIC) {
                 const size = isoTileSize(extraType, width, height, extraRows);
                 raw = data.slice(offset, offset + size);
@@ -63,6 +64,18 @@ export namespace Image {
             tiles.push(ti);
 
         }
+
+        if (type === TYPE.RLE_ENCODED) {
+            for (let i = 0; i < tiles.length; i++) {
+                const end = GraphicFactory.rlePayloadEnd(
+                    tiles,
+                    i,
+                    data.length,
+                );
+                tiles[i].raw = data.slice(tiles[i].offset, end);
+            }
+        }
+
         const image = new Pl8Image(tiles, type);
         image.source = data;
 
@@ -106,6 +119,10 @@ export namespace Image {
         }
 
         public Orthogonal(palette: Buffer): Graphic {
+            return GraphicFactory.Pl8(this, palette, this.source);
+        }
+
+        public Rle(palette: Buffer): Graphic {
             return GraphicFactory.Pl8(this, palette, this.source);
         }
 

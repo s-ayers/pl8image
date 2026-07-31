@@ -1,5 +1,6 @@
 import { GraphicFactory } from "../graphic-factory";
 import { Graphic } from "./Graphic.model";
+import { Image } from "./Pl8.model";
 
 export class Tile {
   public width: number = 0;
@@ -49,9 +50,18 @@ export class Tile {
     return graphic;
   }
 
-  public Rle(): Buffer {
-    const data = Buffer.alloc(this.width * this.height * 4);
-
-    return data;
+  /** Decode this tile via GraphicFactory (single RLE path). */
+  public Rle(palette: Buffer): Graphic {
+    const savedX = this.x;
+    const savedY = this.y;
+    this.x = 0;
+    this.y = 0;
+    const pl8 = new Image.Pl8Image([this], Image.TYPE.RLE_ENCODED);
+    pl8.width = this.width;
+    pl8.height = this.height;
+    const graphic = GraphicFactory.Pl8(pl8, palette);
+    this.x = savedX;
+    this.y = savedY;
+    return graphic;
   }
 }
