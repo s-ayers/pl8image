@@ -6,49 +6,65 @@ Sprite Image (.pl8)
 There are multiple images (sprites) within one file. The height, width,
 and data offset are located in the header.
 
-The color table is stored in a separate file.
+The color table is stored in a separate file (see `.256.rst`).
 
 A type of "transparency" is supported, despite the color table not supporting
-an alpha channel.
+an alpha channel: palette index ``0`` is treated as transparent when blitting
+and when exporting PNG (alpha 0). Palette entries are expanded ``×4`` to RGBA
+in memory (see `.256.rst`).
 
-The image data is located at the 'Data Offset', and is Width x Height long.
-Each byte corresponds to a color in the color table (.256 file).
+File header
+-----------
 
 +--------------+-------------------------------------------------------------------------+
 | File Offset  |                                                                         |
 | (bytes)      |                                                                         |
 +==============+=========================================================================+
-| 0 - 1        | 0bit indicates RLS encoding, the rest is unknown                        |
+| 0 - 1        | File type (uint16 LE):                                                  |
+|              |   * ``0`` — orthogonal (raw width×height indices)                       |
+|              |   * ``1`` — chunk RLE                                                   |
+|              |   * ``2`` — isometric (decode uses per-tile ``extraType``)              |
 +--------------+-------------------------------------------------------------------------+
 | 2 - 3        | Number of Sprites                                                       |
 +--------------+-------------------------------------------------------------------------+
-| 4 - 7        | Unknown                                                                 |
+| 4 - 7        | Unknown (uint32). Observed e.g. ``0x0f000000`` in ``Caspics.pl8``.      |
 +--------------+-------------------------------------------------------------------------+
-|              | Sprite 1                                                                |
+
+Sprite records
+--------------
+
+Each sprite has a fixed **16-byte** header starting at offset ``8 + 16×n``.
+Do not confuse **file type** (bytes 0–1) with per-tile ``extraType`` (byte 20
+of the first sprite, relative file offsets below for sprite 0).
+
 +--------------+-------------------------------------------------------------------------+
+| File Offset  | Sprite 0 (repeat every 16 bytes for each sprite)                        |
+| (bytes)      |                                                                         |
++==============+=========================================================================+
 | 8 - 9        | Width                                                                   |
 +--------------+-------------------------------------------------------------------------+
-| 10 - 12      | Height                                                                  |
+| 10 - 11      | Height                                                                  |
 +--------------+-------------------------------------------------------------------------+
-| 13 - 16      | Data Offset                                                             |
+| 12 - 15      | Data Offset (uint32 LE)                                                 |
 +--------------+-------------------------------------------------------------------------+
-| 17 - 18      | x coordinate                                                            |
+| 16 - 17      | x coordinate                                                            |
 +--------------+-------------------------------------------------------------------------+
-| 20 - 21      | y coordinate                                                            |
+| 18 - 19      | y coordinate                                                            |
 +--------------+-------------------------------------------------------------------------+
-| 22           | Tile type                                                               |
+| 20           | Per-tile type (``extraType``)                                           |
 |              |   * 0 - simple bitmap like encoding                                     |
 |              |   * 1 - isometric (ISO) encoding                                        |
 |              |   * 2 - ISO encoding with additional rows                               |
 |              |   * 3 - ISO encoding additional rows on the left side only              |
 |              |   * 4 - ISO encoding additional rows on the right side only             |
 +--------------+-------------------------------------------------------------------------+
-| 23           | Indicates how many extra row is stored in ISO encoded tile              |
+| 21           | Extra rows stored for ISO-encoded tiles                                 |
 +--------------+-------------------------------------------------------------------------+
-| 24 - 25      | Unknown                                                                 |
+| 22 - 23      | Unknown (uint16 pad)                                                    |
 +--------------+-------------------------------------------------------------------------+
-|              | Sprite 2                                                                |
-+--------------+-------------------------------------------------------------------------+
+
+Composition defaults to a 640×480 canvas unless overridden. Sprites are
+blitted at their ``(x, y)`` into that canvas.
 
 
 Simple bitmap like encoding
@@ -68,6 +84,9 @@ transparent or number of consequent opaque pixels.
 First byte in each chunk indicates how many opaque pixels is in this
 chunk. If the number of opaque pixels is zero, next byte indicates how
 many transparent pixels should be filed in the image.
+
+Tile payload length is not stored in the header: use
+``nextTile.offset - tile.offset`` (last tile runs to EOF).
 
 +--------------+-------------------------------------------------+
 | File Offset  | Color                                           |

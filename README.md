@@ -9,20 +9,25 @@ Supports orthogonal, RLE, and isometric (extraType 1–4) decode via `GraphicFac
 
 ```bash
 npm run build
-node bin/index.js -p Mtns1a.pl8 -b Base01.256 --format png -o mtns1a.png
-node bin/index.js -p Mtns1a.pl8 -b Base01.256              # BMP next to input
+node bin/index.js -p Mtns1a.pl8 -b Base01.256 -o mtns1a.png
+node bin/index.js -p Mtns1a.pl8 -b Base01.256 --format bmp
+node bin/index.js -p Caspics.pl8 -b Cas_back.256 --sprites -o out/caspics.png
 ```
 
 | Option | Description |
 |--------|-------------|
 | `-p` / `--pl8` | Input `.pl8` |
 | `-b` / `--256` | Palette `.256` |
-| `-o` / `--output` | Output path (default: input with `.bmp`/`.png`) |
-| `-f` / `--format` | `bmp` (default) or `png` |
+| `-o` / `--output` | Output path (default: input with `.png`/`.bmp`); stem when `--sprites` |
+| `-f` / `--format` | `png` (default) or `bmp` |
+| `--width` / `--height` | Composition canvas size (default 640×480) |
+| `--sprites` | Export each sprite as a separate image (`stem-000.png`, …) |
+
+PNG treats palette index 0 as fully transparent (alpha 0).
 
 ## Docker
 
-Build and run the CLI with Docker. Mount a directory containing your `.pl8` and `.256` files; the BMP is written next to the input.
+Build and run the CLI with Docker. Mount a directory containing your `.pl8` and `.256` files; the image is written next to the input.
 
 ```bash
 docker compose build
@@ -38,4 +43,4 @@ docker run --rm -v "$PWD:/work" -w /work pl8image -p ./MySprite.pl8 -b ./MyPal.2
 
 ## Tests
 
-See [docs/fixtures.md](docs/fixtures.md) for obtaining LoTR2 fixtures under `data/` (gitignored), including optional type-1 RLE samples (`A2_miss.pl8`).
+See [docs/fixtures.md](docs/fixtures.md) for obtaining LoTR2 fixtures under `data/` (gitignored), including optional Caspics (orthogonal) and `A2_miss.pl8` (RLE) samples.

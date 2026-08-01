@@ -56,22 +56,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
+var graphic_factory_1 = require("./graphic-factory");
 var Palette_model_1 = require("./model/Palette.model");
 var Pl8_model_1 = require("./model/Pl8.model");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var pal, pp8, _a, _b, _c, _d, _e, _f;
+    var pal, raw, pp8, graphic, _a, _b, _c, _d, _e, _f;
     return __generator(this, function (_g) {
         switch (_g.label) {
             case 0: return [4 /*yield*/, Palette_model_1.Palette.file("./data/BASE01.256")];
             case 1:
                 pal = _g.sent();
-                return [4 /*yield*/, Pl8_model_1.Image.file("./data/Village.pl8")];
-            case 2:
-                pp8 = _g.sent();
+                raw = fs.readFileSync("./data/Village.pl8");
+                pp8 = Pl8_model_1.Image.buffer(raw);
+                graphic = graphic_factory_1.GraphicFactory.Pl8(pp8, pal, raw);
                 _b = (_a = fs).writeFile;
                 _c = ["./data/out.png"];
-                return [4 /*yield*/, pp8.Orthogonal(pal).toPNG()];
-            case 3:
+                return [4 /*yield*/, graphic.toPNG()];
+            case 2:
                 _b.apply(_a, _c.concat([_g.sent(), function (err) {
                         if (err) {
                             throw err;
@@ -79,8 +80,8 @@ var Pl8_model_1 = require("./model/Pl8.model");
                     }]));
                 _e = (_d = fs).writeFile;
                 _f = ["./data/out.bmp"];
-                return [4 /*yield*/, pp8.Orthogonal(pal).toBMP()];
-            case 4:
+                return [4 /*yield*/, graphic.toBMP()];
+            case 3:
                 _e.apply(_d, _f.concat([_g.sent(), function (err) {
                         if (err) {
                             throw err;

@@ -117,7 +117,7 @@ var GraphicFactory = /** @class */ (function () {
         var y = tile.y;
         var data = tile.raw;
         for (var h = 0; h < tileHeight; h++) {
-            for (var w = 0; w < tileWidth - 1; w++) {
+            for (var w = 0; w < tileWidth; w++) {
                 var source = h * tileWidth + w;
                 if (source >= data.length) {
                     return;

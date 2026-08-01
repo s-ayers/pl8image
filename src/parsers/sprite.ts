@@ -1,5 +1,4 @@
 import { Parser } from "binary-parser";
-import { SpriteType } from "./sprite-type";
 
 export const Sprite = Parser.start()
   .useContextVars()
@@ -11,9 +10,4 @@ export const Sprite = Parser.start()
   .uint16("y")
   .uint8("extraType")
   .uint8("extraRows")
-  .uint16("unknown_000")
-  // .pointer("raw", {
-  //   offset: "offset",
-  //   type: SpriteType,
-  // })
-  ;
+  .uint16("unknown_000");

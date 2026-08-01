@@ -176,7 +176,7 @@ export class GraphicFactory {
     const data = tile.raw;
 
     for (let h = 0; h < tileHeight; h++) {
-      for (let w = 0; w < tileWidth - 1; w++) {
+      for (let w = 0; w < tileWidth; w++) {
         const source = h * tileWidth + w;
 
         if (source >= data.length) {
